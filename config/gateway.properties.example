@@ -14,12 +14,10 @@ modbus.stopBits=1
 modbus.parity=none
 modbus.unitId=1
 
-# Bind to loopback for a reverse proxy, or set credentials before binding to
-# another address. Basic authentication is not encrypted; use TLS at the proxy.
+# The HTTP interface has no authentication. Keep it on loopback unless access
+# control is provided by a firewall or reverse proxy.
 web.bind=127.0.0.1
 web.port=8080
-web.username=
-web.password=
 
 # FileHandler rotates at this size and retains this many files.
 log.path=/var/log/cool-raspberries/gateway.log

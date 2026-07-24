@@ -2,7 +2,6 @@ package cr.web;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import cr.Config;
 import cr.core.RegisterBank;
@@ -11,7 +10,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -33,32 +31,15 @@ public final class WebServer implements AutoCloseable {
         this.server = HttpServer.create(new InetSocketAddress(config.webBind(), config.webPort()), 32);
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
         server.setExecutor(executor);
-        server.createContext("/", authenticated(this::home));
-        server.createContext("/api/status", authenticated(this::status));
-        server.createContext("/api/control", authenticated(this::control));
+        server.createContext("/", this::home);
+        server.createContext("/api/status", this::status);
+        server.createContext("/api/control", this::control);
         server.createContext("/health", this::health);
     }
 
     public void start() {
         server.start();
         LOG.info(() -> "web server listening on http://" + config.webBind() + ":" + config.webPort());
-    }
-
-    private HttpHandler authenticated(HttpHandler delegate) {
-        if (config.webUsername().isBlank()) return delegate;
-        return exchange -> {
-            String authorization = exchange.getRequestHeaders().getFirst("Authorization");
-            String expected = "Basic " + java.util.Base64.getEncoder().encodeToString(
-                    (config.webUsername() + ":" + config.webPassword()).getBytes(StandardCharsets.UTF_8));
-            boolean valid = authorization != null && MessageDigest.isEqual(
-                    authorization.getBytes(StandardCharsets.UTF_8), expected.getBytes(StandardCharsets.UTF_8));
-            if (!valid) {
-                exchange.getResponseHeaders().set("WWW-Authenticate", "Basic realm=\"cool-raspberries\"");
-                send(exchange, 401, "text/plain; charset=utf-8", "Authentication required\n");
-                return;
-            }
-            delegate.handle(exchange);
-        };
     }
 
     private void home(HttpExchange exchange) throws IOException {

@@ -14,8 +14,6 @@ public record Config(
         int modbusUnitId,
         String webBind,
         int webPort,
-        String webUsername,
-        String webPassword,
         Path logPath,
         int logLimitBytes,
         int logFiles,
@@ -41,9 +39,6 @@ public record Config(
         if (logLimitBytes < 65_536) throw new IllegalArgumentException("log.limitBytes must be at least 65536");
         if (logFiles < 1) throw new IllegalArgumentException("log.files must be positive");
         if (controllerMac.length != 6) throw new IllegalArgumentException("controller.mac must contain six octets");
-        if (!isLoopback(webBind) && (webUsername.isBlank() || webPassword.isBlank())) {
-            throw new IllegalArgumentException("web credentials are required when web.bind is not loopback");
-        }
     }
 
     public static Config load(Path path) throws IOException {
@@ -57,8 +52,6 @@ public record Config(
                 integer(p, "modbus.unitId", 1),
                 p.getProperty("web.bind", "127.0.0.1").trim(),
                 integer(p, "web.port", 8080),
-                p.getProperty("web.username", "").trim(),
-                p.getProperty("web.password", ""),
                 Path.of(p.getProperty("log.path", "/var/log/cool-raspberries/gateway.log")),
                 integer(p, "log.limitBytes", 5_000_000),
                 integer(p, "log.files", 5),
@@ -98,9 +91,5 @@ public record Config(
 
     private static int integer(Properties p, String key, int defaultValue) {
         return Integer.parseInt(p.getProperty(key, Integer.toString(defaultValue)).trim());
-    }
-
-    private static boolean isLoopback(String bind) {
-        return bind.equals("127.0.0.1") || bind.equals("::1") || bind.equalsIgnoreCase("localhost");
     }
 }
