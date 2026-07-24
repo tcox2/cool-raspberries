@@ -43,11 +43,14 @@ is the JDK's built-in `jdk.httpserver`; no application server is required.
 2. Run `sudo scripts/install.sh`.
 3. Edit `/etc/cool-raspberries/gateway.properties`.
 4. Prefer stable `/dev/serial/by-id/...` paths for both adapters.
-5. Start with `sudo systemctl start cool-raspberries`.
-6. Inspect `systemctl status cool-raspberries` and the configured log file.
+5. Reboot once to activate the whole-Pi hardware watchdog.
+6. Start with `sudo systemctl start cool-raspberries`.
+7. Inspect `systemctl status cool-raspberries` and the configured log file.
 
 The service runs as the unprivileged `cool-raspberries` user in the `dialout`
 group, restarts after failures, and has basic systemd hardening.
+The installer configures systemd to feed the Raspberry Pi hardware watchdog;
+if the operating system stops feeding it for 30 seconds, the Pi resets.
 
 For Modbus RS-485, use an adapter that controls transmit direction
 automatically. The service does not currently toggle a separate GPIO or RTS
