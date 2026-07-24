@@ -1,0 +1,25 @@
+module(
+    name = "cool_raspberries",
+    version = "1.0.0",
+)
+
+http_jar = use_repo_rule(
+    "@bazel_tools//tools/build_defs/repo:http.bzl",
+    "http_jar",
+)
+
+http_jar(
+    name = "jserialcomm",
+    sha256 = "b5f7ec40d622864b92dc679159cdbaa3030d37884f0af2deef45b56c16bda7a6",
+    urls = [
+        "https://repo.maven.apache.org/maven2/com/fazecast/jSerialComm/2.11.4/jSerialComm-2.11.4.jar",
+    ],
+)
+
+http_jar(
+    name = "junit_platform_console",
+    sha256 = "329bd10288875a74d04c9ca6b7c9889c265ddf87b21a9ea42a7f7392f391472a",
+    urls = [
+        "https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/1.12.2/junit-platform-console-standalone-1.12.2.jar",
+    ],
+)

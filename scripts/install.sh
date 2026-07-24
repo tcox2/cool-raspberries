@@ -10,8 +10,15 @@ project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 jar="$project_dir/target/cool-raspberries.jar"
 
 if [ ! -f "$jar" ]; then
-  echo "Missing $jar; run ./mvnw clean verify first." >&2
-  exit 1
+  bazel_jar="$project_dir/bazel-bin/cool-raspberries_deploy.jar"
+  if [ -f "$bazel_jar" ]; then
+    jar="$bazel_jar"
+  else
+    echo "Missing application JAR; run one of:" >&2
+    echo "  ./mvnw clean verify" >&2
+    echo "  bazel build //:cool-raspberries_deploy.jar" >&2
+    exit 1
+  fi
 fi
 
 if ! getent group cool-raspberries >/dev/null; then

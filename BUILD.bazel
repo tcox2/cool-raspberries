@@ -1,0 +1,51 @@
+java_library(
+    name = "gateway",
+    srcs = glob(
+        ["src/main/java/**/*.java"],
+        exclude = ["src/main/java/cr/Main.java"],
+    ),
+    visibility = ["//visibility:private"],
+    deps = [
+        "@jserialcomm//jar",
+    ],
+)
+
+java_binary(
+    name = "cool-raspberries",
+    srcs = ["src/main/java/cr/Main.java"],
+    main_class = "cr.Main",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":gateway",
+    ],
+)
+
+java_library(
+    name = "test-code",
+    testonly = True,
+    srcs = glob(["src/test/java/**/*.java"]),
+    deps = [
+        ":gateway",
+        "@junit_platform_console//jar",
+    ],
+)
+
+java_test(
+    name = "all-tests",
+    args = [
+        "execute",
+        "--scan-class-path",
+        "--details=tree",
+    ],
+    main_class = "org.junit.platform.console.ConsoleLauncher",
+    runtime_deps = [
+        ":test-code",
+        "@junit_platform_console//jar",
+    ],
+    use_testrunner = False,
+)
+
+test_suite(
+    name = "tests",
+    tests = [":all-tests"],
+)
