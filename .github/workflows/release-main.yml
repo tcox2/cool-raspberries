@@ -30,8 +30,8 @@ jobs:
       - name: Test
         run: bazel test //:tests
 
-      - name: Build deployable JAR
-        run: bazel build //:cool-raspberries_deploy.jar
+      - name: Build release archive
+        run: bazel build //:release-archive
 
       - name: Prepare release files
         id: release
@@ -39,28 +39,37 @@ jobs:
         run: |
           short_sha="${GITHUB_SHA::7}"
           tag="main-${GITHUB_SHA}"
-          asset="cool-raspberries-${short_sha}.jar"
+          jar_asset="cool-raspberries-${short_sha}.jar"
+          archive_asset="cool-raspberries-${short_sha}.tar.gz"
           mkdir -p dist
-          cp bazel-bin/cool-raspberries_deploy.jar "dist/${asset}"
-          sha256sum "dist/${asset}" > "dist/${asset}.sha256"
+          cp bazel-bin/cool-raspberries_deploy.jar "dist/${jar_asset}"
+          cp bazel-bin/cool-raspberries.tar.gz "dist/${archive_asset}"
+          (
+            cd dist
+            sha256sum "${jar_asset}" "${archive_asset}" > SHA256SUMS
+          )
           echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
           echo "short_sha=${short_sha}" >> "${GITHUB_OUTPUT}"
-          echo "asset=${asset}" >> "${GITHUB_OUTPUT}"
+          echo "jar_asset=${jar_asset}" >> "${GITHUB_OUTPUT}"
+          echo "archive_asset=${archive_asset}" >> "${GITHUB_OUTPUT}"
 
       - name: Create or update GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
           SHORT_SHA: ${{ steps.release.outputs.short_sha }}
-          ASSET: ${{ steps.release.outputs.asset }}
+          JAR_ASSET: ${{ steps.release.outputs.jar_asset }}
+          ARCHIVE_ASSET: ${{ steps.release.outputs.archive_asset }}
         shell: bash
         run: |
           if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
             gh release upload "${RELEASE_TAG}" \
-              "dist/${ASSET}" "dist/${ASSET}.sha256" --clobber
+              "dist/${JAR_ASSET}" "dist/${ARCHIVE_ASSET}" \
+              dist/SHA256SUMS --clobber
           else
             gh release create "${RELEASE_TAG}" \
-              "dist/${ASSET}" "dist/${ASSET}.sha256" \
+              "dist/${JAR_ASSET}" "dist/${ARCHIVE_ASSET}" \
+              dist/SHA256SUMS \
               --target "${GITHUB_SHA}" \
               --title "Main build ${SHORT_SHA}" \
               --notes "Automated build of main at commit ${GITHUB_SHA}."

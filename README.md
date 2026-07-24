@@ -27,7 +27,7 @@ Bazel downloads the Java 21 toolchain:
 
 ```sh
 bazel test //...
-bazel build //:cool-raspberries_deploy.jar
+bazel build //:release-archive
 java -jar bazel-bin/cool-raspberries_deploy.jar \
   config/gateway.properties.example
 ```
@@ -36,11 +36,18 @@ The Bazel build uses a pinned Java 21 toolchain. Its two external JARs are
 downloaded from Maven Central and verified against SHA-256 checksums.
 The deploy JAR contains the jSerialComm native serial library. The web server
 is the JDK's built-in `jdk.httpserver`; no application server is required.
+The release archive is written to `bazel-bin/cool-raspberries.tar.gz`.
 
 ## Raspberry Pi installation
 
-1. Build on the Pi or copy the built JAR and repository deployment files to it.
-2. Run `sudo scripts/install.sh`.
+1. Download a release archive and its `SHA256SUMS` file, then verify and extract
+   the archive:
+   ```sh
+   sha256sum --ignore-missing --check SHA256SUMS
+   tar -xzf cool-raspberries-*.tar.gz
+   ```
+2. Enter the extracted `cool-raspberries` directory and run
+   `sudo scripts/install.sh`.
 3. Edit `/etc/cool-raspberries/gateway.properties`.
 4. Prefer stable `/dev/serial/by-id/...` paths for both adapters.
 5. Ensure SSH is enabled before disconnecting the display from a headless Pi.
@@ -49,6 +56,8 @@ is the JDK's built-in `jdk.httpserver`; no application server is required.
 
 The service runs as the unprivileged `cool-raspberries` user in the `dialout`
 group, restarts after failures, and has basic systemd hardening.
+The installer installs the Java 21 headless JDK from Raspberry Pi OS and selects
+Java 21 as the system `java` and `javac`.
 The installer configures systemd to feed the Raspberry Pi hardware watchdog;
 if the operating system stops feeding it for 30 seconds, the Pi resets.
 It also selects `multi-user.target` so an installed graphical desktop does not

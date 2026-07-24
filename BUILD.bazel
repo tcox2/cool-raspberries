@@ -22,6 +22,36 @@ java_binary(
     ],
 )
 
+genrule(
+    name = "release-archive",
+    srcs = [
+        ":cool-raspberries_deploy.jar",
+        "README.md",
+        "config/gateway.properties.example",
+        "deploy/10-cool-raspberries-watchdog.conf",
+        "deploy/cool-raspberries.service",
+        "scripts/install.sh",
+    ],
+    outs = ["cool-raspberries.tar.gz"],
+    cmd = """
+set -eu
+staging="$(@D)/release-archive"
+package="$$staging/cool-raspberries"
+rm -rf "$$staging"
+mkdir -p "$$package/config" "$$package/deploy" "$$package/scripts"
+cp "$(location :cool-raspberries_deploy.jar)" "$$package/cool-raspberries.jar"
+cp "$(location README.md)" "$$package/README.md"
+cp "$(location config/gateway.properties.example)" "$$package/config/gateway.properties.example"
+cp "$(location deploy/10-cool-raspberries-watchdog.conf)" "$$package/deploy/10-cool-raspberries-watchdog.conf"
+cp "$(location deploy/cool-raspberries.service)" "$$package/deploy/cool-raspberries.service"
+cp "$(location scripts/install.sh)" "$$package/scripts/install.sh"
+chmod 0755 "$$package/scripts/install.sh"
+COPYFILE_DISABLE=1 tar -C "$$staging" -czf "$@" cool-raspberries
+rm -rf "$$staging"
+""",
+    visibility = ["//visibility:public"],
+)
+
 java_library(
     name = "test-code",
     testonly = True,
