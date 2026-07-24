@@ -17,6 +17,14 @@ http_jar(
 )
 
 http_jar(
+    name = "jmustache",
+    sha256 = "3d4b984abd66908f05b38c9c892325cd4785d01ff33922569ff9b90c9ebfc475",
+    urls = [
+        "https://repo.maven.apache.org/maven2/com/samskivert/jmustache/1.16/jmustache-1.16.jar",
+    ],
+)
+
+http_jar(
     name = "junit_platform_console",
     sha256 = "329bd10288875a74d04c9ca6b7c9889c265ddf87b21a9ea42a7f7392f391472a",
     urls = [

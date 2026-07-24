@@ -4,8 +4,10 @@ java_library(
         ["src/main/java/**/*.java"],
         exclude = ["src/main/java/cr/Main.java"],
     ),
+    resources = ["src/main/resources/cr/web/home.mustache"],
     visibility = ["//visibility:private"],
     deps = [
+        "@jmustache//jar",
         "@jserialcomm//jar",
     ],
 )
