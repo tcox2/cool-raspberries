@@ -61,6 +61,7 @@ require those protections.
 ## Interfaces
 
 - [Modbus register map](docs/register-map.md)
+- [HTTP control UI](docs/web-ui.md)
 - [Reverse-engineered UART protocol](docs/protocol.md)
 - `GET /api/status` — JSON state
 - `POST /api/control` — form fields `address` and `value`; requires request
