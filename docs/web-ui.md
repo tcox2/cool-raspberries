@@ -40,11 +40,12 @@ the air conditioner.
 | Setpoint °C | 3 | Integer 16–31 | Sets the requested target temperature in degrees Celsius. |
 | Turbo | 4 | `Off` or `On` | Requests maximum-output/turbo operation. Whether the unit accepts it can depend on the selected mode. |
 | Quiet | 5 | `Off` or `On` | Requests quiet operation. Whether the unit accepts it can depend on the selected mode. |
-| Sweep L/R | 6 | Integer 0–15 | Selects the horizontal-vane/sweep code. The exact positions represented by individual codes are model-specific. |
-| Sweep U/D | 7 | Integer 0–15 | Selects the vertical-vane/sweep code. The exact positions represented by individual codes are model-specific. |
 
 Changing a field marks it as pending. Automatic status refreshes do not
 overwrite pending fields.
+
+Each control includes this information directly beneath its input on the web
+page.
 
 ### Apply changed controls
 
@@ -70,8 +71,8 @@ air conditioner subsequently applied it.
 
 ## Controls not currently shown
 
-Holding registers 8–13—indoor display, ionizer, auxiliary heater, sleep,
-energy saving, and timer—are available through Modbus and `/api/control`, but
-the current web page does not expose fields for them. See the
-[Modbus register map](register-map.md) for their values and limitations.
-
+Holding registers 6–13—horizontal sweep, vertical sweep, indoor display,
+ionizer, auxiliary heater, sleep, energy saving, and timer—are available
+through Modbus and `/api/control`, but the current web page does not expose
+fields for them. See the [Modbus register map](register-map.md) for their
+values and limitations.

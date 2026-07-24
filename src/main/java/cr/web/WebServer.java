@@ -189,7 +189,7 @@ public final class WebServer implements AutoCloseable {
                 label{display:block;margin:.7rem 0}.value{font-size:1.5rem;font-weight:700}
                 input,select,button{font:inherit;padding:.5rem;border-radius:.35rem;border:1px solid #667}
                 button{cursor:pointer;background:#006b8f;color:white}.offline{color:#ff7b72}.online{color:#7ee787}
-                small{color:#9aa}
+                small{color:#9aa}.help{display:block;margin-top:.4rem;line-height:1.35}
               </style>
             </head>
             <body>
@@ -204,15 +204,26 @@ public final class WebServer implements AutoCloseable {
               <section>
                 <h2>Control</h2>
                 <div class="grid">
-                  <label>Power <select data-register="0"><option value="0">Off</option><option value="1">On</option></select></label>
-                  <label>Mode <select data-register="1"><option value="0">Auto</option><option value="1">Cool</option><option value="2">Dry</option><option value="3">Fan</option><option value="4">Heat</option></select></label>
-                  <label>Fan <input data-register="2" type="number" min="0" max="7"></label>
-                  <label>Setpoint °C <input data-register="3" type="number" min="16" max="31"></label>
-                  <label>Turbo <select data-register="4"><option value="0">Off</option><option value="1">On</option></select></label>
-                  <label>Quiet <select data-register="5"><option value="0">Off</option><option value="1">On</option></select></label>
-                  <label>Sweep L/R <input data-register="6" type="number" min="0" max="15"></label>
-                  <label>Sweep U/D <input data-register="7" type="number" min="0" max="15"></label>
+                  <label>Power <select data-register="0"><option value="0">Off</option><option value="1">On</option></select>
+                    <small class="help">Turns the indoor unit off or on.</small>
+                  </label>
+                  <label>Mode <select data-register="1"><option value="0">Auto</option><option value="1">Cool</option><option value="2">Dry</option><option value="3">Fan</option><option value="4">Heat</option></select>
+                    <small class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</small>
+                  </label>
+                  <label>Fan <input data-register="2" type="number" min="0" max="7">
+                    <small class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</small>
+                  </label>
+                  <label>Setpoint °C <input data-register="3" type="number" min="16" max="31">
+                    <small class="help">Requested target temperature from 16 to 31 °C.</small>
+                  </label>
+                  <label>Turbo <select data-register="4"><option value="0">Off</option><option value="1">On</option></select>
+                    <small class="help">Requests maximum-output operation when supported by the selected mode.</small>
+                  </label>
+                  <label>Quiet <select data-register="5"><option value="0">Off</option><option value="1">On</option></select>
+                    <small class="help">Requests reduced-noise operation when supported by the selected mode.</small>
+                  </label>
                 </div>
+                <p><small>Changes remain pending until applied. The air conditioner must send a valid state frame before controls are accepted.</small></p>
                 <p><button id="apply">Apply changed controls</button> <small id="result"></small></p>
               </section>
               <script>
@@ -227,7 +238,7 @@ public final class WebServer implements AutoCloseable {
                     powerState.textContent=d.status.power?'On':'Off';
                     modeState.textContent=names[d.status.mode]??d.status.mode;
                     fanState.textContent=d.status.fan;
-                    const values=[d.control.power,d.control.mode,d.control.fan,d.control.setpointC,d.control.turbo,d.control.quiet,d.control.sweepLR,d.control.sweepUD];
+                    const values=[d.control.power,d.control.mode,d.control.fan,d.control.setpointC,d.control.turbo,d.control.quiet];
                     document.querySelectorAll('[data-register]').forEach((e,i)=>{if(!(e.dataset.dirty)){e.value=values[i];initial[e.dataset.register]=String(values[i]);}});
                   }catch(e){connection.textContent='Gateway unavailable';connection.className='offline';}
                 }
