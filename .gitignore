@@ -1,6 +1,5 @@
 __pycache__/
 *.py[cod]
-target/
 bazel-*
 .idea/
 *.iml

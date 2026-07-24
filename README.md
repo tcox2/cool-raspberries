@@ -22,20 +22,8 @@ levels before connecting a Raspberry Pi or USB adapter.
 
 ## Build
 
-The Maven build requires JDK 21 and Maven 3.9 or the included Maven wrapper:
-
-```sh
-./mvnw clean verify
-java -jar target/cool-raspberries.jar config/gateway.properties.example
-```
-
-The build creates one executable JAR containing the jSerialComm native serial
-library. The web server is the JDK's built-in `jdk.httpserver`; no application
-server is required.
-
-An equivalent Bazel build is also available. Install Bazelisk and it will read
-the pinned Bazel version from `.bazelversion`; Bazel downloads the Java 21
-toolchain:
+Install Bazelisk. It reads the pinned Bazel version from `.bazelversion`, and
+Bazel downloads the Java 21 toolchain:
 
 ```sh
 bazel test //...
@@ -46,6 +34,8 @@ java -jar bazel-bin/cool-raspberries_deploy.jar \
 
 The Bazel build uses a pinned Java 21 toolchain. Its two external JARs are
 downloaded from Maven Central and verified against SHA-256 checksums.
+The deploy JAR contains the jSerialComm native serial library. The web server
+is the JDK's built-in `jdk.httpserver`; no application server is required.
 
 ## Raspberry Pi installation
 
