@@ -65,6 +65,5 @@ air conditioner subsequently applied it.
 
 Holding registers 6–13—horizontal sweep, vertical sweep, indoor display,
 ionizer, auxiliary heater, sleep, energy saving, and timer—are available
-through Modbus and the programmatic `/api/control` endpoint, but the current
-web page does not expose fields for them. See the
-[Modbus register map](register-map.md) for their values and limitations.
+through Modbus, but the current web page does not expose fields for them. See
+the [Modbus register map](register-map.md) for their values and limitations.

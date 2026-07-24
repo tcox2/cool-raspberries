@@ -64,9 +64,6 @@ require those protections.
 - [HTTP control UI](docs/web-ui.md)
 - [Reverse-engineered UART protocol](docs/protocol.md)
 - `POST /control` — server-rendered HTML form submission for visible controls
-- `GET /api/status` — JSON state
-- `POST /api/control` — form fields `address` and `value`; requires request
-  header `X-Cool-Raspberries: 1`
 - `GET /health` — HTTP 200 when AC state is current, otherwise 503
 - `GET /` — control and status UI
 

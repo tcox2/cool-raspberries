@@ -37,6 +37,14 @@ class WebServerTest {
             assertFalse(page.body().contains("<script"));
             assertFalse(page.body().contains("Sweep L/R"));
             assertFalse(page.body().contains("Sweep U/D"));
+            assertEquals(404, client.send(
+                    HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/status"))
+                            .GET().build(),
+                    HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(404, client.send(
+                    HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/api/control"))
+                            .POST(HttpRequest.BodyPublishers.noBody()).build(),
+                    HttpResponse.BodyHandlers.ofString()).statusCode());
 
             String form = "power=1&mode=1&fan=2&setpoint=22&turbo=0&quiet=1";
             HttpResponse<String> submitted = client.send(

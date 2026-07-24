@@ -35,8 +35,6 @@ public final class WebServer implements AutoCloseable {
         server.setExecutor(executor);
         server.createContext("/", this::home);
         server.createContext("/control", this::formControl);
-        server.createContext("/api/status", this::status);
-        server.createContext("/api/control", this::control);
         server.createContext("/health", this::health);
     }
 
@@ -46,6 +44,10 @@ public final class WebServer implements AutoCloseable {
     }
 
     private void home(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestURI().getPath().equals("/")) {
+            notFound(exchange);
+            return;
+        }
         if (!exchange.getRequestMethod().equals("GET")) {
             methodNotAllowed(exchange, "GET");
             return;
@@ -56,73 +58,11 @@ public final class WebServer implements AutoCloseable {
                 homeHtml(applied ? "Control request accepted." : "", false));
     }
 
-    private void status(HttpExchange exchange) throws IOException {
-        if (!exchange.getRequestMethod().equals("GET")) {
-            methodNotAllowed(exchange, "GET");
-            return;
-        }
-        int[] input = registers.readInput(0, RegisterBank.REGISTER_COUNT);
-        int[] holding = registers.readHolding(0, RegisterBank.REGISTER_COUNT);
-        String json = """
-                {"online":%s,"ageSeconds":%d,"returnAirTenthsC":%d,
-                 "status":{"power":%d,"mode":%d,"fan":%d,"setpointC":%d,"flags":%d,
-                 "sweepLR":%d,"sweepUD":%d,"timerMinutes":%d,"operatingHours":%d},
-                 "control":{"power":%d,"mode":%d,"fan":%d,"setpointC":%d,"turbo":%d,
-                 "quiet":%d,"sweepLR":%d,"sweepUD":%d,"display":%d,"ionizer":%d,
-                 "auxHeater":%d,"sleep":%d,"energySaving":%d,"timerMinutes":%d},
-                 "counters":{"validFramesLow":%d,"crcErrorsLow":%d}}
-                """.formatted(
-                input[RegisterBank.STATUS_AC_ONLINE] == 1,
-                input[RegisterBank.STATUS_LAST_FRAME_AGE_SECONDS],
-                input[RegisterBank.STATUS_RETURN_AIR_TENTHS_C],
-                input[RegisterBank.STATUS_POWER], input[RegisterBank.STATUS_MODE],
-                input[RegisterBank.STATUS_FAN], input[RegisterBank.STATUS_SETPOINT_C],
-                input[RegisterBank.STATUS_FLAGS], input[RegisterBank.STATUS_SWEEP_LR],
-                input[RegisterBank.STATUS_SWEEP_UD], input[RegisterBank.STATUS_TIMER_MINUTES],
-                input[RegisterBank.STATUS_OPERATING_HOURS],
-                holding[RegisterBank.POWER], holding[RegisterBank.MODE],
-                holding[RegisterBank.FAN], holding[RegisterBank.SETPOINT_C],
-                holding[RegisterBank.TURBO], holding[RegisterBank.QUIET],
-                holding[RegisterBank.SWEEP_LR], holding[RegisterBank.SWEEP_UD],
-                holding[RegisterBank.DISPLAY], holding[RegisterBank.IONIZER],
-                holding[RegisterBank.AUX_HEATER], holding[RegisterBank.SLEEP],
-                holding[RegisterBank.ENERGY_SAVING], holding[RegisterBank.TIMER_MINUTES],
-                input[RegisterBank.STATUS_VALID_FRAMES_LOW], input[RegisterBank.STATUS_CRC_ERRORS_LOW]);
-        noStore(exchange.getResponseHeaders());
-        send(exchange, 200, "application/json; charset=utf-8", json);
-    }
-
-    private void control(HttpExchange exchange) throws IOException {
-        if (!exchange.getRequestMethod().equals("POST")) {
-            methodNotAllowed(exchange, "POST");
-            return;
-        }
-        if (!"1".equals(exchange.getRequestHeaders().getFirst("X-Cool-Raspberries"))) {
-            send(exchange, 403, "text/plain; charset=utf-8", "Missing control request header\n");
-            return;
-        }
-        try {
-            byte[] body = exchange.getRequestBody().readNBytes(MAX_REQUEST_BYTES + 1);
-            if (body.length > MAX_REQUEST_BYTES) {
-                send(exchange, 413, "text/plain; charset=utf-8", "Request too large\n");
-                return;
-            }
-            Map<String, String> form = parseForm(new String(body, StandardCharsets.UTF_8));
-            int address = Integer.parseInt(required(form, "address"));
-            int value = Integer.parseInt(required(form, "value"));
-            registers.writeHolding(address, new int[]{value});
-            send(exchange, 204, "text/plain; charset=utf-8", "");
-        } catch (IllegalStateException notReady) {
-            send(exchange, 409, "text/plain; charset=utf-8", notReady.getMessage() + "\n");
-        } catch (IllegalArgumentException error) {
-            send(exchange, 400, "text/plain; charset=utf-8", error.getMessage() + "\n");
-        } catch (RuntimeException error) {
-            LOG.log(Level.WARNING, "web control request failed", error);
-            send(exchange, 500, "text/plain; charset=utf-8", "Internal error\n");
-        }
-    }
-
     private void formControl(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestURI().getPath().equals("/control")) {
+            notFound(exchange);
+            return;
+        }
         if (!exchange.getRequestMethod().equals("POST")) {
             methodNotAllowed(exchange, "POST");
             return;
@@ -158,6 +98,10 @@ public final class WebServer implements AutoCloseable {
     }
 
     private void health(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestURI().getPath().equals("/health")) {
+            notFound(exchange);
+            return;
+        }
         if (!exchange.getRequestMethod().equals("GET")) {
             methodNotAllowed(exchange, "GET");
             return;
@@ -191,6 +135,10 @@ public final class WebServer implements AutoCloseable {
     private static void methodNotAllowed(HttpExchange exchange, String allowed) throws IOException {
         exchange.getResponseHeaders().set("Allow", allowed);
         send(exchange, 405, "text/plain; charset=utf-8", "Method not allowed\n");
+    }
+
+    private static void notFound(HttpExchange exchange) throws IOException {
+        send(exchange, 404, "text/plain; charset=utf-8", "Not found\n");
     }
 
     private static void noStore(Headers headers) {
