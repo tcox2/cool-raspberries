@@ -1,6 +1,6 @@
 # HTTP control UI
 
-The gateway serves a small, responsive control page at:
+The gateway serves a simple, table-based control page at:
 
 ```text
 http://<raspberry-pi-address>:8080/
@@ -44,8 +44,8 @@ the air conditioner.
 Changing a field marks it as pending. Automatic status refreshes do not
 overwrite pending fields.
 
-Each control includes this information directly beneath its input on the web
-page.
+Each control includes this information in the adjacent Description column on
+the web page.
 
 ### Apply changed controls
 

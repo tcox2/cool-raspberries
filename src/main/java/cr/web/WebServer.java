@@ -182,50 +182,81 @@ public final class WebServer implements AutoCloseable {
               <meta name="viewport" content="width=device-width,initial-scale=1">
               <title>Cool Raspberries</title>
               <style>
-                :root{color-scheme:dark;font:16px system-ui;background:#101418;color:#eef}
-                body{max-width:920px;margin:2rem auto;padding:0 1rem}
-                h1{color:#80d8ff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
-                section,.card{background:#192129;border:1px solid #344;padding:1rem;border-radius:.7rem}
-                label{display:block;margin:.7rem 0}.value{font-size:1.5rem;font-weight:700}
-                input,select,button{font:inherit;padding:.5rem;border-radius:.35rem;border:1px solid #667}
-                button{cursor:pointer;background:#006b8f;color:white}.offline{color:#ff7b72}.online{color:#7ee787}
-                small{color:#9aa}.help{display:block;margin-top:.4rem;line-height:1.35}
+                body{margin:0;background:#eee;color:#222;font:14px Arial,Helvetica,sans-serif}
+                #page{width:760px;max-width:94%;margin:20px auto}
+                h1{margin:0 0 16px;padding:12px 15px;background:#24496b;color:#fff;font-size:24px}
+                .panel{margin-bottom:16px;border:1px solid #999;background:#fff}
+                .panel h2{margin:0;padding:8px 12px;border-bottom:1px solid #999;background:#ddd;font-size:18px}
+                table{width:100%;border-collapse:collapse}
+                th,td{padding:9px 12px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}
+                tr:last-child th,tr:last-child td{border-bottom:0}
+                .status-table th{width:28%;background:#f5f5f5}
+                .status-value{font-weight:bold}
+                .control-table th{background:#f5f5f5}
+                .control-name{width:18%;font-weight:bold}
+                .control-setting{width:20%}
+                input,select,button{font:14px Arial,Helvetica,sans-serif;padding:5px;border:1px solid #777;background:#fff}
+                input{width:70px}
+                button{background:#24496b;color:#fff;font-weight:bold;cursor:pointer}
+                .help{color:#555;line-height:1.35}
+                .actions{margin:0;padding:12px;border-top:1px solid #999;background:#f5f5f5}
+                .notice{margin:0;padding:10px 12px;color:#555}
+                .offline{color:#b00020}.online{color:#087830}
+                #result{margin-left:8px}
               </style>
             </head>
             <body>
-              <h1>Cool Raspberries</h1>
-              <p id="connection">Loading…</p>
-              <div class="grid">
-                <div class="card">Return air<div class="value" id="temp">—</div></div>
-                <div class="card">Power<div class="value" id="powerState">—</div></div>
-                <div class="card">Mode<div class="value" id="modeState">—</div></div>
-                <div class="card">Fan<div class="value" id="fanState">—</div></div>
-              </div>
-              <section>
-                <h2>Control</h2>
-                <div class="grid">
-                  <label>Power <select data-register="0"><option value="0">Off</option><option value="1">On</option></select>
-                    <small class="help">Turns the indoor unit off or on.</small>
-                  </label>
-                  <label>Mode <select data-register="1"><option value="0">Auto</option><option value="1">Cool</option><option value="2">Dry</option><option value="3">Fan</option><option value="4">Heat</option></select>
-                    <small class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</small>
-                  </label>
-                  <label>Fan <input data-register="2" type="number" min="0" max="7">
-                    <small class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</small>
-                  </label>
-                  <label>Setpoint °C <input data-register="3" type="number" min="16" max="31">
-                    <small class="help">Requested target temperature from 16 to 31 °C.</small>
-                  </label>
-                  <label>Turbo <select data-register="4"><option value="0">Off</option><option value="1">On</option></select>
-                    <small class="help">Requests maximum-output operation when supported by the selected mode.</small>
-                  </label>
-                  <label>Quiet <select data-register="5"><option value="0">Off</option><option value="1">On</option></select>
-                    <small class="help">Requests reduced-noise operation when supported by the selected mode.</small>
-                  </label>
+              <div id="page">
+                <h1>Cool Raspberries</h1>
+                <div class="panel" id="status-panel">
+                  <h2>Status</h2>
+                  <table class="status-table">
+                    <tr><th scope="row">Connection</th><td id="connection" class="status-value">Loading…</td></tr>
+                    <tr><th scope="row">Return air</th><td id="temp" class="status-value">—</td></tr>
+                    <tr><th scope="row">Power</th><td id="powerState" class="status-value">—</td></tr>
+                    <tr><th scope="row">Mode</th><td id="modeState" class="status-value">—</td></tr>
+                    <tr><th scope="row">Fan</th><td id="fanState" class="status-value">—</td></tr>
+                  </table>
                 </div>
-                <p><small>Changes remain pending until applied. The air conditioner must send a valid state frame before controls are accepted.</small></p>
-                <p><button id="apply">Apply changed controls</button> <small id="result"></small></p>
-              </section>
+                <div class="panel" id="control-panel">
+                  <h2>Controls</h2>
+                  <table class="control-table">
+                    <tr><th>Control</th><th>Setting</th><th>Description</th></tr>
+                    <tr>
+                      <td class="control-name"><label for="control-power">Power</label></td>
+                      <td class="control-setting"><select id="control-power" data-register="0"><option value="0">Off</option><option value="1">On</option></select></td>
+                      <td class="help">Turns the indoor unit off or on.</td>
+                    </tr>
+                    <tr>
+                      <td class="control-name"><label for="control-mode">Mode</label></td>
+                      <td class="control-setting"><select id="control-mode" data-register="1"><option value="0">Auto</option><option value="1">Cool</option><option value="2">Dry</option><option value="3">Fan</option><option value="4">Heat</option></select></td>
+                      <td class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</td>
+                    </tr>
+                    <tr>
+                      <td class="control-name"><label for="control-fan">Fan</label></td>
+                      <td class="control-setting"><input id="control-fan" data-register="2" type="number" min="0" max="7"></td>
+                      <td class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</td>
+                    </tr>
+                    <tr>
+                      <td class="control-name"><label for="control-setpoint">Setpoint °C</label></td>
+                      <td class="control-setting"><input id="control-setpoint" data-register="3" type="number" min="16" max="31"></td>
+                      <td class="help">Requested target temperature from 16 to 31 °C.</td>
+                    </tr>
+                    <tr>
+                      <td class="control-name"><label for="control-turbo">Turbo</label></td>
+                      <td class="control-setting"><select id="control-turbo" data-register="4"><option value="0">Off</option><option value="1">On</option></select></td>
+                      <td class="help">Requests maximum-output operation when supported by the selected mode.</td>
+                    </tr>
+                    <tr>
+                      <td class="control-name"><label for="control-quiet">Quiet</label></td>
+                      <td class="control-setting"><select id="control-quiet" data-register="5"><option value="0">Off</option><option value="1">On</option></select></td>
+                      <td class="help">Requests reduced-noise operation when supported by the selected mode.</td>
+                    </tr>
+                  </table>
+                  <p class="notice">Changes remain pending until applied. The air conditioner must send a valid state frame before controls are accepted.</p>
+                  <p class="actions"><button id="apply">Apply changed controls</button><span id="result"></span></p>
+                </div>
+              </div>
               <script>
                 const names=['Auto','Cool','Dry','Fan','Heat'];
                 let initial={};
@@ -233,14 +264,14 @@ public final class WebServer implements AutoCloseable {
                   try{
                     const r=await fetch('/api/status',{cache:'no-store'}),d=await r.json();
                     connection.textContent=d.online?'AC online':'AC status stale ('+d.ageSeconds+'s)';
-                    connection.className=d.online?'online':'offline';
+                    connection.className='status-value '+(d.online?'online':'offline');
                     temp.textContent=(d.returnAirTenthsC/10).toFixed(1)+' °C';
                     powerState.textContent=d.status.power?'On':'Off';
                     modeState.textContent=names[d.status.mode]??d.status.mode;
                     fanState.textContent=d.status.fan;
                     const values=[d.control.power,d.control.mode,d.control.fan,d.control.setpointC,d.control.turbo,d.control.quiet];
                     document.querySelectorAll('[data-register]').forEach((e,i)=>{if(!(e.dataset.dirty)){e.value=values[i];initial[e.dataset.register]=String(values[i]);}});
-                  }catch(e){connection.textContent='Gateway unavailable';connection.className='offline';}
+                  }catch(e){connection.textContent='Gateway unavailable';connection.className='status-value offline';}
                 }
                 document.querySelectorAll('[data-register]').forEach(e=>e.addEventListener('change',()=>e.dataset.dirty='1'));
                 apply.onclick=async()=>{
