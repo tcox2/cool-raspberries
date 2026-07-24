@@ -10,7 +10,7 @@ Type=simple
 User=cool-raspberries
 Group=cool-raspberries
 SupplementaryGroups=dialout
-ExecStart=/usr/bin/java --enable-native-access=ALL-UNNAMED -XX:MaxRAMPercentage=50 -jar /opt/cool-raspberries/cool-raspberries.jar /etc/cool-raspberries/gateway.properties
+ExecStart=/usr/bin/java --enable-native-access=ALL-UNNAMED -Xms32m -Xmx128m -XX:+ExitOnOutOfMemoryError -jar /opt/cool-raspberries/cool-raspberries.jar /etc/cool-raspberries/gateway.properties
 Restart=on-failure
 RestartSec=5s
 TimeoutStopSec=15s
