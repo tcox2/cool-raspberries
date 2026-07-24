@@ -53,9 +53,10 @@ For Modbus RS-485, use an adapter that controls transmit direction
 automatically. The service does not currently toggle a separate GPIO or RTS
 line for a bare MAX485-style transceiver.
 
-The built-in HTTP server has no authentication. Do not expose it directly to
-the internet. Keep it bound to loopback, or put access control and TLS on a
-reverse proxy or firewall before making it reachable from another machine.
+The built-in HTTP server has no authentication and always binds to `0.0.0.0`.
+Use a host or network firewall to restrict access, and do not expose it directly
+to the internet. Put access control and TLS on a reverse proxy if remote clients
+require those protections.
 
 ## Interfaces
 

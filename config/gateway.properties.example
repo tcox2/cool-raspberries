@@ -14,9 +14,7 @@ modbus.stopBits=1
 modbus.parity=none
 modbus.unitId=1
 
-# The HTTP interface has no authentication. Keep it on loopback unless access
-# control is provided by a firewall or reverse proxy.
-web.bind=127.0.0.1
+# The unauthenticated HTTP interface always listens on all IPv4 interfaces.
 web.port=8080
 
 # FileHandler rotates at this size and retains this many files.

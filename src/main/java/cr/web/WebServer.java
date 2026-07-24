@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 public final class WebServer implements AutoCloseable {
     private static final Logger LOG = Logger.getLogger(WebServer.class.getName());
     private static final int MAX_REQUEST_BYTES = 16_384;
+    private static final String BIND_ADDRESS = "0.0.0.0";
     private final Config config;
     private final RegisterBank registers;
     private final HttpServer server;
@@ -28,7 +29,7 @@ public final class WebServer implements AutoCloseable {
     public WebServer(Config config, RegisterBank registers) throws IOException {
         this.config = config;
         this.registers = registers;
-        this.server = HttpServer.create(new InetSocketAddress(config.webBind(), config.webPort()), 32);
+        this.server = HttpServer.create(new InetSocketAddress(BIND_ADDRESS, config.webPort()), 32);
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
         server.setExecutor(executor);
         server.createContext("/", this::home);
@@ -39,7 +40,7 @@ public final class WebServer implements AutoCloseable {
 
     public void start() {
         server.start();
-        LOG.info(() -> "web server listening on http://" + config.webBind() + ":" + config.webPort());
+        LOG.info(() -> "web server listening on http://" + BIND_ADDRESS + ":" + config.webPort());
     }
 
     private void home(HttpExchange exchange) throws IOException {
