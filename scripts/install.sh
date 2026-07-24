@@ -64,5 +64,7 @@ fi
 
 systemctl daemon-reload
 systemctl enable cool-raspberries.service
+systemctl set-default multi-user.target
 echo "Installed with a ${watchdog_timeout}s whole-Pi hardware watchdog."
-echo "Reboot to activate it, then configure and start cool-raspberries."
+echo "Graphical desktop boot disabled; the desktop packages remain installed."
+echo "Reboot to activate the watchdog and start cool-raspberries."
