@@ -1,0 +1,31 @@
+# Air-conditioner UART. Use stable /dev/serial/by-id paths where available.
+ac.device=/dev/serial/by-id/replace-with-ac-adapter
+ac.baud=9600
+ac.dataBits=8
+ac.stopBits=1
+ac.parity=none
+ac.staleAfterSeconds=30
+
+# Modbus RTU server/slave UART. This must be a different serial device.
+modbus.device=/dev/serial/by-id/replace-with-rs485-adapter
+modbus.baud=9600
+modbus.dataBits=8
+modbus.stopBits=1
+modbus.parity=none
+modbus.unitId=1
+
+# Bind to loopback for a reverse proxy, or set credentials before binding to
+# another address. Basic authentication is not encrypted; use TLS at the proxy.
+web.bind=127.0.0.1
+web.port=8080
+web.username=
+web.password=
+
+# FileHandler rotates at this size and retains this many files.
+log.path=/var/log/cool-raspberries/gateway.log
+log.limitBytes=5000000
+log.files=5
+
+# Six bytes inserted into A1 control frames. Set this to the identity expected
+# by the indoor unit; all zeroes have not been confirmed as safe on hardware.
+controller.mac=00:00:00:00:00:00

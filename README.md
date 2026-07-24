@@ -1,4 +1,81 @@
-# Airton split AC UART protocol notes
+# Cool Raspberries
+
+A reliability-oriented Java 21 gateway for Raspberry Pi:
+
+```text
+Air-conditioner UART ⇄ Java gateway ⇄ Modbus RTU
+                              ⇅
+                         HTTP control UI
+```
+
+The service talks to the split air conditioner over one serial port, exposes
+control and status registers as a Modbus RTU server on a second serial port,
+serves a small web UI, and writes rotating log files.
+
+## Implementation status
+
+The software is complete enough for bench testing, but it has **not been
+validated on an air conditioner**. The protocol contains unresolved fields,
+notably return-air temperature and timer encoding. Keep the AC disconnected
+from mains while identifying the low-voltage connector, and verify voltage
+levels before connecting a Raspberry Pi or USB adapter.
+
+## Build
+
+Requirements: JDK 21 and Maven 3.9 or the included Maven wrapper.
+
+```sh
+./mvnw clean verify
+java -jar target/cool-raspberries.jar config/gateway.properties.example
+```
+
+The build creates one executable JAR containing the jSerialComm native serial
+library. The web server is the JDK's built-in `jdk.httpserver`; no application
+server is required.
+
+## Raspberry Pi installation
+
+1. Build on the Pi or copy the built JAR and repository deployment files to it.
+2. Run `sudo scripts/install.sh`.
+3. Edit `/etc/cool-raspberries/gateway.properties`.
+4. Prefer stable `/dev/serial/by-id/...` paths for both adapters.
+5. Start with `sudo systemctl start cool-raspberries`.
+6. Inspect `systemctl status cool-raspberries` and the configured log file.
+
+The service runs as the unprivileged `cool-raspberries` user in the `dialout`
+group, restarts after failures, and has basic systemd hardening.
+
+For Modbus RS-485, use an adapter that controls transmit direction
+automatically. The service does not currently toggle a separate GPIO or RTS
+line for a bare MAX485-style transceiver.
+
+Do not expose the built-in HTTP server directly to the internet. Bind it to
+loopback behind an HTTPS reverse proxy, or configure credentials before binding
+to a LAN address. HTTP Basic credentials are not encrypted without TLS.
+
+## Interfaces
+
+- [Modbus register map](docs/register-map.md)
+- [Reverse-engineered UART protocol](docs/protocol.md)
+- `GET /api/status` — JSON state
+- `POST /api/control` — form fields `address` and `value`; requires request
+  header `X-Cool-Raspberries: 1`
+- `GET /health` — HTTP 200 when AC state is current, otherwise 503
+- `GET /` — control and status UI
+
+## Design
+
+The AC worker is the only component that writes to the proprietary UART.
+Modbus and HTTP requests update a validated register bank; the AC worker turns
+the latest coherent snapshot into an A1 frame. Each serial worker reconnects
+with bounded exponential backoff. Incoming AC frames are length-bounded and
+CRC-validated before state is published.
+
+The Modbus server currently implements holding and input registers only. It
+uses standard RTU CRC byte ordering, which differs from the proprietary
+protocol's on-wire ordering.
+
+## Protocol research
 
 An evidence-based description of the UART messages used between an Airton split
 air-conditioner indoor unit and its Wi-Fi module.
@@ -54,4 +131,3 @@ The factual starting point was the public
 by TheMiNuS, whose material is published under CC BY-NC-ND 4.0. No permission
 to distribute modified versions of that project is implied here. This is an
 independently written research summary, not a fork.
-
