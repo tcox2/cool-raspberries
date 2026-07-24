@@ -11,6 +11,7 @@ import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +34,7 @@ public final class WebServer implements AutoCloseable {
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
         server.setExecutor(executor);
         server.createContext("/", this::home);
+        server.createContext("/control", this::formControl);
         server.createContext("/api/status", this::status);
         server.createContext("/api/control", this::control);
         server.createContext("/health", this::health);
@@ -48,7 +50,10 @@ public final class WebServer implements AutoCloseable {
             methodNotAllowed(exchange, "GET");
             return;
         }
-        send(exchange, 200, "text/html; charset=utf-8", HTML);
+        boolean applied = "result=applied".equals(exchange.getRequestURI().getRawQuery());
+        noStore(exchange.getResponseHeaders());
+        send(exchange, 200, "text/html; charset=utf-8",
+                homeHtml(applied ? "Control request accepted." : "", false));
     }
 
     private void status(HttpExchange exchange) throws IOException {
@@ -117,6 +122,41 @@ public final class WebServer implements AutoCloseable {
         }
     }
 
+    private void formControl(HttpExchange exchange) throws IOException {
+        if (!exchange.getRequestMethod().equals("POST")) {
+            methodNotAllowed(exchange, "POST");
+            return;
+        }
+        try {
+            byte[] body = exchange.getRequestBody().readNBytes(MAX_REQUEST_BYTES + 1);
+            if (body.length > MAX_REQUEST_BYTES) {
+                send(exchange, 413, "text/plain; charset=utf-8", "Request too large\n");
+                return;
+            }
+            Map<String, String> form = parseForm(new String(body, StandardCharsets.UTF_8));
+            int[] values = {
+                    integer(form, "power"),
+                    integer(form, "mode"),
+                    integer(form, "fan"),
+                    integer(form, "setpoint"),
+                    integer(form, "turbo"),
+                    integer(form, "quiet")
+            };
+            registers.writeHolding(0, values);
+            redirect(exchange, "/?result=applied");
+        } catch (IllegalStateException notReady) {
+            noStore(exchange.getResponseHeaders());
+            send(exchange, 409, "text/html; charset=utf-8", homeHtml(notReady.getMessage(), true));
+        } catch (IllegalArgumentException error) {
+            noStore(exchange.getResponseHeaders());
+            send(exchange, 400, "text/html; charset=utf-8", homeHtml(error.getMessage(), true));
+        } catch (RuntimeException error) {
+            LOG.log(Level.WARNING, "web form control request failed", error);
+            noStore(exchange.getResponseHeaders());
+            send(exchange, 500, "text/html; charset=utf-8", homeHtml("Internal error", true));
+        }
+    }
+
     private void health(HttpExchange exchange) throws IOException {
         if (!exchange.getRequestMethod().equals("GET")) {
             methodNotAllowed(exchange, "GET");
@@ -144,6 +184,10 @@ public final class WebServer implements AutoCloseable {
         return value;
     }
 
+    private static int integer(Map<String, String> form, String key) {
+        return Integer.parseInt(required(form, key));
+    }
+
     private static void methodNotAllowed(HttpExchange exchange, String allowed) throws IOException {
         exchange.getResponseHeaders().set("Allow", allowed);
         send(exchange, 405, "text/plain; charset=utf-8", "Method not allowed\n");
@@ -153,12 +197,18 @@ public final class WebServer implements AutoCloseable {
         headers.set("Cache-Control", "no-store");
     }
 
+    private static void redirect(HttpExchange exchange, String location) throws IOException {
+        exchange.getResponseHeaders().set("Location", location);
+        exchange.sendResponseHeaders(303, -1);
+        exchange.close();
+    }
+
     private static void send(HttpExchange exchange, int status, String contentType, String body) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", contentType);
         exchange.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
         exchange.getResponseHeaders().set("Content-Security-Policy",
-                "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-ancestors 'none'");
+                "default-src 'self'; style-src 'unsafe-inline'; frame-ancestors 'none'; form-action 'self'");
         if (status == 204) {
             exchange.sendResponseHeaders(status, -1);
         } else {
@@ -174,7 +224,64 @@ public final class WebServer implements AutoCloseable {
         executor.shutdown();
     }
 
-    private static final String HTML = """
+    private String homeHtml(String message, boolean error) {
+        int[] input = registers.readInput(0, RegisterBank.REGISTER_COUNT);
+        int[] holding = registers.readHolding(0, RegisterBank.REGISTER_COUNT);
+        boolean online = input[RegisterBank.STATUS_AC_ONLINE] == 1;
+        String connection = online ? "AC online"
+                : "AC status stale (" + input[RegisterBank.STATUS_LAST_FRAME_AGE_SECONDS] + "s)";
+        String flash = message.isBlank() ? ""
+                : "<p class=\"message " + (error ? "error" : "success") + "\">"
+                + htmlEscape(message) + "</p>";
+
+        return HOME_TEMPLATE
+                .replace("{{FLASH}}", flash)
+                .replace("{{CONNECTION_CLASS}}", online ? "online" : "offline")
+                .replace("{{CONNECTION}}", connection)
+                .replace("{{TEMPERATURE}}", String.format(Locale.ROOT, "%.1f °C",
+                        input[RegisterBank.STATUS_RETURN_AIR_TENTHS_C] / 10.0))
+                .replace("{{POWER_STATUS}}", input[RegisterBank.STATUS_POWER] == 1 ? "On" : "Off")
+                .replace("{{MODE_STATUS}}", modeName(input[RegisterBank.STATUS_MODE]))
+                .replace("{{FAN_STATUS}}", Integer.toString(input[RegisterBank.STATUS_FAN]))
+                .replace("{{POWER_OFF}}", selected(holding[RegisterBank.POWER], 0))
+                .replace("{{POWER_ON}}", selected(holding[RegisterBank.POWER], 1))
+                .replace("{{MODE_AUTO}}", selected(holding[RegisterBank.MODE], 0))
+                .replace("{{MODE_COOL}}", selected(holding[RegisterBank.MODE], 1))
+                .replace("{{MODE_DRY}}", selected(holding[RegisterBank.MODE], 2))
+                .replace("{{MODE_FAN}}", selected(holding[RegisterBank.MODE], 3))
+                .replace("{{MODE_HEAT}}", selected(holding[RegisterBank.MODE], 4))
+                .replace("{{FAN_VALUE}}", Integer.toString(holding[RegisterBank.FAN]))
+                .replace("{{SETPOINT_VALUE}}", Integer.toString(holding[RegisterBank.SETPOINT_C]))
+                .replace("{{TURBO_OFF}}", selected(holding[RegisterBank.TURBO], 0))
+                .replace("{{TURBO_ON}}", selected(holding[RegisterBank.TURBO], 1))
+                .replace("{{QUIET_OFF}}", selected(holding[RegisterBank.QUIET], 0))
+                .replace("{{QUIET_ON}}", selected(holding[RegisterBank.QUIET], 1));
+    }
+
+    private static String selected(int actual, int candidate) {
+        return actual == candidate ? " selected" : "";
+    }
+
+    private static String modeName(int mode) {
+        return switch (mode) {
+            case 0 -> "Auto";
+            case 1 -> "Cool";
+            case 2 -> "Dry";
+            case 3 -> "Fan";
+            case 4 -> "Heat";
+            default -> Integer.toString(mode);
+        };
+    }
+
+    private static String htmlEscape(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private static final String HOME_TEMPLATE = """
             <!doctype html>
             <html lang="en">
             <head>
@@ -202,92 +309,68 @@ public final class WebServer implements AutoCloseable {
                 .actions{margin:0;padding:12px;border-top:1px solid #999;background:#f5f5f5}
                 .notice{margin:0;padding:10px 12px;color:#555}
                 .offline{color:#b00020}.online{color:#087830}
+                .refresh{margin:0;padding:10px 12px;border-top:1px solid #999;background:#f5f5f5}
+                .message{padding:10px 12px;border:1px solid;margin:0 0 16px;font-weight:bold}
+                .success{color:#087830;background:#edf8ef}.error{color:#b00020;background:#fff0f0}
                 #result{margin-left:8px}
               </style>
             </head>
             <body>
               <div id="page">
                 <h1>Cool Raspberries</h1>
+                {{FLASH}}
                 <div class="panel" id="status-panel">
                   <h2>Status</h2>
                   <table class="status-table">
-                    <tr><th scope="row">Connection</th><td id="connection" class="status-value">Loading…</td></tr>
-                    <tr><th scope="row">Return air</th><td id="temp" class="status-value">—</td></tr>
-                    <tr><th scope="row">Power</th><td id="powerState" class="status-value">—</td></tr>
-                    <tr><th scope="row">Mode</th><td id="modeState" class="status-value">—</td></tr>
-                    <tr><th scope="row">Fan</th><td id="fanState" class="status-value">—</td></tr>
+                    <tr><th scope="row">Connection</th><td class="status-value {{CONNECTION_CLASS}}">{{CONNECTION}}</td></tr>
+                    <tr><th scope="row">Return air</th><td class="status-value">{{TEMPERATURE}}</td></tr>
+                    <tr><th scope="row">Power</th><td class="status-value">{{POWER_STATUS}}</td></tr>
+                    <tr><th scope="row">Mode</th><td class="status-value">{{MODE_STATUS}}</td></tr>
+                    <tr><th scope="row">Fan</th><td class="status-value">{{FAN_STATUS}}</td></tr>
                   </table>
+                  <form method="get" action="/" class="refresh"><button type="submit">Refresh status</button></form>
                 </div>
                 <div class="panel" id="control-panel">
                   <h2>Controls</h2>
-                  <table class="control-table">
-                    <tr><th>Control</th><th>Setting</th><th>Description</th></tr>
-                    <tr>
-                      <td class="control-name"><label for="control-power">Power</label></td>
-                      <td class="control-setting"><select id="control-power" data-register="0"><option value="0">Off</option><option value="1">On</option></select></td>
-                      <td class="help">Turns the indoor unit off or on.</td>
-                    </tr>
-                    <tr>
-                      <td class="control-name"><label for="control-mode">Mode</label></td>
-                      <td class="control-setting"><select id="control-mode" data-register="1"><option value="0">Auto</option><option value="1">Cool</option><option value="2">Dry</option><option value="3">Fan</option><option value="4">Heat</option></select></td>
-                      <td class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</td>
-                    </tr>
-                    <tr>
-                      <td class="control-name"><label for="control-fan">Fan</label></td>
-                      <td class="control-setting"><input id="control-fan" data-register="2" type="number" min="0" max="7"></td>
-                      <td class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</td>
-                    </tr>
-                    <tr>
-                      <td class="control-name"><label for="control-setpoint">Setpoint °C</label></td>
-                      <td class="control-setting"><input id="control-setpoint" data-register="3" type="number" min="16" max="31"></td>
-                      <td class="help">Requested target temperature from 16 to 31 °C.</td>
-                    </tr>
-                    <tr>
-                      <td class="control-name"><label for="control-turbo">Turbo</label></td>
-                      <td class="control-setting"><select id="control-turbo" data-register="4"><option value="0">Off</option><option value="1">On</option></select></td>
-                      <td class="help">Requests maximum-output operation when supported by the selected mode.</td>
-                    </tr>
-                    <tr>
-                      <td class="control-name"><label for="control-quiet">Quiet</label></td>
-                      <td class="control-setting"><select id="control-quiet" data-register="5"><option value="0">Off</option><option value="1">On</option></select></td>
-                      <td class="help">Requests reduced-noise operation when supported by the selected mode.</td>
-                    </tr>
-                  </table>
-                  <p class="notice">Changes remain pending until applied. The air conditioner must send a valid state frame before controls are accepted.</p>
-                  <p class="actions"><button id="apply">Apply changed controls</button><span id="result"></span></p>
+                  <form method="post" action="/control">
+                    <table class="control-table">
+                      <tr><th>Control</th><th>Setting</th><th>Description</th></tr>
+                      <tr>
+                        <td class="control-name"><label for="control-power">Power</label></td>
+                        <td class="control-setting"><select id="control-power" name="power"><option value="0"{{POWER_OFF}}>Off</option><option value="1"{{POWER_ON}}>On</option></select></td>
+                        <td class="help">Turns the indoor unit off or on.</td>
+                      </tr>
+                      <tr>
+                        <td class="control-name"><label for="control-mode">Mode</label></td>
+                        <td class="control-setting"><select id="control-mode" name="mode"><option value="0"{{MODE_AUTO}}>Auto</option><option value="1"{{MODE_COOL}}>Cool</option><option value="2"{{MODE_DRY}}>Dry</option><option value="3"{{MODE_FAN}}>Fan</option><option value="4"{{MODE_HEAT}}>Heat</option></select></td>
+                        <td class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</td>
+                      </tr>
+                      <tr>
+                        <td class="control-name"><label for="control-fan">Fan</label></td>
+                        <td class="control-setting"><input id="control-fan" name="fan" type="number" min="0" max="7" value="{{FAN_VALUE}}" required></td>
+                        <td class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</td>
+                      </tr>
+                      <tr>
+                        <td class="control-name"><label for="control-setpoint">Setpoint °C</label></td>
+                        <td class="control-setting"><input id="control-setpoint" name="setpoint" type="number" min="16" max="31" value="{{SETPOINT_VALUE}}" required></td>
+                        <td class="help">Requested target temperature from 16 to 31 °C.</td>
+                      </tr>
+                      <tr>
+                        <td class="control-name"><label for="control-turbo">Turbo</label></td>
+                        <td class="control-setting"><select id="control-turbo" name="turbo"><option value="0"{{TURBO_OFF}}>Off</option><option value="1"{{TURBO_ON}}>On</option></select></td>
+                        <td class="help">Requests maximum-output operation when supported by the selected mode.</td>
+                      </tr>
+                      <tr>
+                        <td class="control-name"><label for="control-quiet">Quiet</label></td>
+                        <td class="control-setting"><select id="control-quiet" name="quiet"><option value="0"{{QUIET_OFF}}>Off</option><option value="1"{{QUIET_ON}}>On</option></select></td>
+                        <td class="help">Requests reduced-noise operation when supported by the selected mode.</td>
+                      </tr>
+                    </table>
+                    <p class="notice">The air conditioner must send a valid state frame before controls are accepted.</p>
+                    <p class="actions"><button type="submit">Apply controls</button></p>
+                  </form>
                 </div>
               </div>
-              <script>
-                const names=['Auto','Cool','Dry','Fan','Heat'];
-                let initial={};
-                async function refresh(){
-                  try{
-                    const r=await fetch('/api/status',{cache:'no-store'}),d=await r.json();
-                    connection.textContent=d.online?'AC online':'AC status stale ('+d.ageSeconds+'s)';
-                    connection.className='status-value '+(d.online?'online':'offline');
-                    temp.textContent=(d.returnAirTenthsC/10).toFixed(1)+' °C';
-                    powerState.textContent=d.status.power?'On':'Off';
-                    modeState.textContent=names[d.status.mode]??d.status.mode;
-                    fanState.textContent=d.status.fan;
-                    const values=[d.control.power,d.control.mode,d.control.fan,d.control.setpointC,d.control.turbo,d.control.quiet];
-                    document.querySelectorAll('[data-register]').forEach((e,i)=>{if(!(e.dataset.dirty)){e.value=values[i];initial[e.dataset.register]=String(values[i]);}});
-                  }catch(e){connection.textContent='Gateway unavailable';connection.className='status-value offline';}
-                }
-                document.querySelectorAll('[data-register]').forEach(e=>e.addEventListener('change',()=>e.dataset.dirty='1'));
-                apply.onclick=async()=>{
-                  result.textContent='Applying…';
-                  try{
-                    for(const e of document.querySelectorAll('[data-register][data-dirty]')){
-                      const body=new URLSearchParams({address:e.dataset.register,value:e.value});
-                      const r=await fetch('/api/control',{method:'POST',headers:{'X-Cool-Raspberries':'1'},body});
-                      if(!r.ok)throw new Error(await r.text());
-                      delete e.dataset.dirty;
-                    }
-                    result.textContent='Applied';await refresh();
-                  }catch(e){result.textContent='Error: '+e.message;}
-                };
-                refresh();setInterval(refresh,3000);
-              </script>
             </body>
             </html>
             """;

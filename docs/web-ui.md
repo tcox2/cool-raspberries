@@ -10,8 +10,9 @@ The port is set by `web.port`. The server always listens on `0.0.0.0` and has
 no authentication, so use a firewall or reverse proxy to control which clients
 can reach it.
 
-The page reads `/api/status` when it opens and every three seconds thereafter.
-An update failure changes the connection message to `Gateway unavailable`.
+The page is rendered entirely on the server and contains no JavaScript. Status
+is a snapshot taken when the page is loaded. Use `Refresh status` to request a
+new snapshot with an ordinary HTTP GET form.
 
 ## Status display
 
@@ -23,7 +24,7 @@ An update failure changes the connection message to `Gateway unavailable`.
 | Mode | Observed mode: `Auto`, `Cool`, `Dry`, `Fan`, or `Heat`. An unrecognized numeric code is displayed as a number. |
 | Fan | Observed fan code from 0 through 7. The physical meaning of each code is model-specific. |
 
-These cards show observed state from the air conditioner. They are distinct
+These rows show observed state from the air conditioner. They are distinct
 from the requested values in the control section.
 
 ## Controls
@@ -41,27 +42,18 @@ the air conditioner.
 | Turbo | 4 | `Off` or `On` | Requests maximum-output/turbo operation. Whether the unit accepts it can depend on the selected mode. |
 | Quiet | 5 | `Off` or `On` | Requests quiet operation. Whether the unit accepts it can depend on the selected mode. |
 
-Changing a field marks it as pending. Automatic status refreshes do not
-overwrite pending fields.
-
 Each control includes this information in the adjacent Description column on
 the web page.
 
-### Apply changed controls
+### Apply controls
 
-`Apply changed controls` sends each pending field to `POST /api/control`, then
-refreshes the displayed state.
+`Apply controls` submits all six visible fields together in a standard HTML
+form to `POST /control`. The gateway validates the complete set before changing
+any holding register, so the web update is atomic.
 
-The result text beside the button shows:
-
-- `Applying…` while requests are in progress.
-- `Applied` after all changed fields are accepted.
-- `Error: ...` when a request is rejected or the gateway cannot be reached.
-
-Each changed field is currently sent as a separate request. Consequently, a
-multi-field UI change is not atomic and may produce more than one A1 control
-frame. Modbus function 16 should be used by automation that requires an atomic
-mode/fan/setpoint update.
+After a successful submission, the server redirects the browser back to the
+page and displays `Control request accepted.` A rejected value or unavailable
+control state is displayed as an error page using the same layout.
 
 The gateway rejects control requests until it has received the first valid A3
 state frame. It also rejects values outside the documented range. The page may
@@ -73,6 +65,6 @@ air conditioner subsequently applied it.
 
 Holding registers 6–13—horizontal sweep, vertical sweep, indoor display,
 ionizer, auxiliary heater, sleep, energy saving, and timer—are available
-through Modbus and `/api/control`, but the current web page does not expose
-fields for them. See the [Modbus register map](register-map.md) for their
-values and limitations.
+through Modbus and the programmatic `/api/control` endpoint, but the current
+web page does not expose fields for them. See the
+[Modbus register map](register-map.md) for their values and limitations.
