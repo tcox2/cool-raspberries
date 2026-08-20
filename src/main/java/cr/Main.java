@@ -7,6 +7,10 @@ import cr.web.WebServer;
 
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,12 +36,19 @@ public final class Main {
     }
 
     private static void run(Config config) throws Exception {
-        RegisterBank registers = new RegisterBank(config.staleAfter());
-        AcWorker acWorker = new AcWorker(config, registers);
-        ModbusRtuServer modbusServer = new ModbusRtuServer(config, registers);
-        WebServer webServer = new WebServer(config, registers);
+        Map<String, RegisterBank> registersById = new LinkedHashMap<>();
+        Map<Integer, RegisterBank> registersByUnit = new LinkedHashMap<>();
+        List<AcWorker> acWorkers = new ArrayList<>();
+        for (Config.AirConditioner ac : config.airConditioners()) {
+            RegisterBank registers = new RegisterBank(ac.staleAfter());
+            registersById.put(ac.id(), registers);
+            registersByUnit.put(ac.modbusUnitId(), registers);
+            acWorkers.add(new AcWorker(ac, registers));
+        }
+        ModbusRtuServer modbusServer = new ModbusRtuServer(config, registersByUnit);
+        WebServer webServer = new WebServer(config, registersById);
         AtomicInteger threadNumber = new AtomicInteger();
-        ExecutorService workers = Executors.newFixedThreadPool(2, runnable -> {
+        ExecutorService workers = Executors.newFixedThreadPool(acWorkers.size() + 1, runnable -> {
             Thread thread = new Thread(runnable, "serial-worker-" + threadNumber.incrementAndGet());
             thread.setDaemon(false);
             thread.setUncaughtExceptionHandler((ignored, error) ->
@@ -51,16 +62,18 @@ public final class Main {
             if (!stopping.compareAndSet(false, true)) return;
             LOG.info("shutdown requested");
             webServer.close();
-            acWorker.close();
+            acWorkers.forEach(AcWorker::close);
             modbusServer.close();
             workers.shutdownNow();
         };
         Runtime.getRuntime().addShutdownHook(new Thread(shutdown, "shutdown"));
 
-        completion.submit(() -> {
-            acWorker.run();
-            return null;
-        });
+        for (AcWorker acWorker : acWorkers) {
+            completion.submit(() -> {
+                acWorker.run();
+                return null;
+            });
+        }
         completion.submit(() -> {
             modbusServer.run();
             return null;

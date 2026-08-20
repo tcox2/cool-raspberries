@@ -3,6 +3,7 @@ package cr.modbus;
 import cr.Config;
 import cr.core.RegisterBank;
 import cr.protocol.Crc16;
+import cr.protocol.TrafficLog;
 import cr.serial.JSerialEndpoint;
 import cr.serial.SerialEndpoint;
 
@@ -10,6 +11,7 @@ import cr.serial.SerialEndpoint;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,13 +23,13 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     private static final int WRITE_SINGLE = 6;
     private static final int WRITE_MULTIPLE = 16;
     private final Config config;
-    private final RegisterBank registers;
+    private final Map<Integer, RegisterBank> registers;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private volatile SerialEndpoint activeSerial;
 
-    public ModbusRtuServer(Config config, RegisterBank registers) {
+    public ModbusRtuServer(Config config, Map<Integer, RegisterBank> registers) {
         this.config = config;
-        this.registers = registers;
+        this.registers = Map.copyOf(registers);
     }
 
     @Override
@@ -37,7 +39,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
             try (SerialEndpoint serial = JSerialEndpoint.open(config.modbusSerial())) {
                 activeSerial = serial;
                 LOG.info(() -> "Modbus RTU serial connected: " + serial.description()
-                        + ", unit " + config.modbusUnitId());
+                        + ", units " + registers.keySet());
                 backoffMillis = 1_000;
                 serve(serial);
             } catch (Exception error) {
@@ -55,11 +57,26 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     private void serve(SerialEndpoint serial) throws IOException {
         while (running.get()) {
             byte[] request = readRequest(serial);
-            if (request == null || !Crc16.validModbusFrame(request)) continue;
+            if (request == null) continue;
+            LOG.info(() -> TrafficLog.entry("modbus", "RX-REQUEST", request,
+                    TrafficLog.modbusRequest(request)));
+            if (!Crc16.validModbusFrame(request)) {
+                LOG.warning(() -> TrafficLog.entry("modbus", "RX-REJECTED", request,
+                        "rejected Modbus RTU request: invalid CRC"));
+                continue;
+            }
             int unit = u(request[0]);
-            if (unit != config.modbusUnitId() && unit != 0) continue;
+            if (unit != 0 && !registers.containsKey(unit)) {
+                LOG.warning(() -> TrafficLog.entry("modbus", "RX-IGNORED", request,
+                        "ignored valid Modbus RTU request for unconfigured unit " + unit));
+                continue;
+            }
             byte[] response = handle(request);
-            if (unit != 0 && response != null) serial.write(response);
+            if (unit != 0 && response != null) {
+                LOG.info(() -> TrafficLog.entry("modbus", "TX-RESPONSE", response,
+                        TrafficLog.modbusResponse(response)));
+                serial.write(response);
+            }
         }
     }
 
@@ -90,13 +107,26 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     }
 
     byte[] handle(byte[] request) {
+        int unit = u(request[0]);
+        if (unit == 0) {
+            int function = u(request[1]);
+            if (function != WRITE_SINGLE && function != WRITE_MULTIPLE) return null;
+            for (RegisterBank bank : registers.values()) handleForBank(request, bank);
+            return null;
+        }
+        RegisterBank bank = registers.get(unit);
+        if (bank == null) return null;
+        return handleForBank(request, bank);
+    }
+
+    private byte[] handleForBank(byte[] request, RegisterBank registers) {
         int function = u(request[1]);
         try {
             return switch (function) {
-                case READ_HOLDING -> readRegisters(request, false);
-                case READ_INPUT -> readRegisters(request, true);
-                case WRITE_SINGLE -> writeSingle(request);
-                case WRITE_MULTIPLE -> writeMultiple(request);
+                case READ_HOLDING -> readRegisters(request, false, registers);
+                case READ_INPUT -> readRegisters(request, true, registers);
+                case WRITE_SINGLE -> writeSingle(request, registers);
+                case WRITE_MULTIPLE -> writeMultiple(request, registers);
                 default -> exception(request, 1);
             };
         } catch (IllegalStateException notReady) {
@@ -111,7 +141,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
         }
     }
 
-    private byte[] readRegisters(byte[] request, boolean input) {
+    private byte[] readRegisters(byte[] request, boolean input, RegisterBank registers) {
         int address = word(request, 2);
         int count = word(request, 4);
         if (count < 1 || count > 125) throw new IllegalArgumentException("invalid register count");
@@ -124,13 +154,13 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
         return Crc16.appendModbusCrc(payload);
     }
 
-    private byte[] writeSingle(byte[] request) {
+    private byte[] writeSingle(byte[] request, RegisterBank registers) {
         int address = word(request, 2);
         registers.writeHolding(address, new int[]{word(request, 4)});
         return Arrays.copyOf(request, request.length);
     }
 
-    private byte[] writeMultiple(byte[] request) {
+    private byte[] writeMultiple(byte[] request, RegisterBank registers) {
         int address = word(request, 2);
         int count = word(request, 4);
         int byteCount = u(request[6]);
@@ -151,6 +181,10 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     private int readByte(SerialEndpoint serial) throws IOException {
         byte[] value = new byte[1];
         int count = serial.read(value, 0, 1);
+        if (count == 1) {
+            LOG.info(() -> TrafficLog.entry("modbus", "RX", value,
+                    TrafficLog.rawMeaning("Modbus RTU")));
+        }
         return count == 1 ? u(value[0]) : -1;
     }
 
@@ -161,6 +195,9 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
             int count = serial.read(bytes, position, length - position);
             if (count < 0) throw new IOException("serial port closed");
             if (count == 0) return null;
+            byte[] chunk = Arrays.copyOfRange(bytes, position, position + count);
+            LOG.info(() -> TrafficLog.entry("modbus", "RX", chunk,
+                    TrafficLog.rawMeaning("Modbus RTU")));
             position += count;
         }
         return position == length ? bytes : null;

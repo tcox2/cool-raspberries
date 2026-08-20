@@ -28,27 +28,36 @@
     .refresh{margin:0;padding:10px 12px;border-top:1px solid #999;background:#f5f5f5}
     .message{padding:10px 12px;border:1px solid;margin:0 0 16px;font-weight:bold}
     .success{color:#087830;background:#edf8ef}.error{color:#b00020;background:#fff0f0}
+    .selector{margin:0 0 16px;padding:12px;border:1px solid #999;background:#fff}
+    .selector label{font-weight:bold;margin-right:8px}
     #result{margin-left:8px}
   </style>
 </head>
 <body>
   <div id="page">
     <h1>Cool Raspberries</h1>
+    <form method="get" action="/" class="selector">
+      <label for="ac-selector">Air conditioner</label>
+      <select id="ac-selector" name="ac">{{#airConditioners}}<option value="{{id}}"{{#selected}} selected{{/selected}}>{{name}}</option>{{/airConditioners}}</select>
+      <button type="submit">View</button>
+    </form>
     {{#hasMessage}}<p class="message {{messageClass}}">{{message}}</p>{{/hasMessage}}
     <div class="panel" id="status-panel">
-      <h2>Status</h2>
+      <h2>{{acName}} status</h2>
       <table class="status-table">
+        <tr><th scope="row">Modbus unit</th><td class="status-value">{{modbusUnitId}}</td></tr>
         <tr><th scope="row">Connection</th><td class="status-value {{connectionClass}}">{{connection}}</td></tr>
         <tr><th scope="row">Return air</th><td class="status-value">{{temperature}}</td></tr>
         <tr><th scope="row">Power</th><td class="status-value">{{powerStatus}}</td></tr>
         <tr><th scope="row">Mode</th><td class="status-value">{{modeStatus}}</td></tr>
         <tr><th scope="row">Fan</th><td class="status-value">{{fanStatus}}</td></tr>
       </table>
-      <form method="get" action="/" class="refresh"><button type="submit">Refresh status</button></form>
+      <form method="get" action="/" class="refresh"><input type="hidden" name="ac" value="{{acId}}"><button type="submit">Refresh status</button></form>
     </div>
     <div class="panel" id="control-panel">
       <h2>Controls</h2>
       <form method="post" action="/control">
+        <input type="hidden" name="ac" value="{{acId}}">
         <table class="control-table">
           <tr><th>Control</th><th>Setting</th><th>Description</th></tr>
           <tr>

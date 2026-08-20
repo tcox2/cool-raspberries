@@ -5,19 +5,22 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public record Config(
-        Serial acSerial,
+        List<AirConditioner> airConditioners,
         Serial modbusSerial,
-        int modbusUnitId,
-        int webPort,
+        Web web,
         Path logPath,
         int logLimitBytes,
-        int logFiles,
-        byte[] controllerMac,
-        Duration staleAfter) {
+        int logFiles) {
 
     public record Serial(String device, int baud, int dataBits, int stopBits, int parity) {
         public Serial {
@@ -29,15 +32,80 @@ public record Config(
         }
     }
 
-    public Config {
-        if (acSerial.device().equals(modbusSerial.device())) {
-            throw new IllegalArgumentException("AC and Modbus must use different serial devices");
+    public record AirConditioner(
+            String id,
+            String name,
+            Serial serial,
+            int modbusUnitId,
+            byte[] controllerMac,
+            Duration staleAfter) {
+        public AirConditioner {
+            if (id == null || !id.matches("[a-zA-Z0-9_-]+")) {
+                throw new IllegalArgumentException("AC id must contain only letters, digits, '_' or '-'");
+            }
+            if (name == null || name.isBlank()) throw new IllegalArgumentException("AC name is required");
+            if (modbusUnitId < 1 || modbusUnitId > 247) {
+                throw new IllegalArgumentException("AC Modbus unit ID must be 1..247");
+            }
+            if (controllerMac == null || controllerMac.length != 6) {
+                throw new IllegalArgumentException("controller MAC must contain six octets");
+            }
+            if (staleAfter == null || staleAfter.isNegative() || staleAfter.isZero()) {
+                throw new IllegalArgumentException("AC stale interval must be positive");
+            }
+            controllerMac = controllerMac.clone();
         }
-        if (modbusUnitId < 1 || modbusUnitId > 247) throw new IllegalArgumentException("modbus.unitId must be 1..247");
-        if (webPort < 1 || webPort > 65535) throw new IllegalArgumentException("web.port must be 1..65535");
+
+        @Override
+        public byte[] controllerMac() {
+            return controllerMac.clone();
+        }
+    }
+
+    public record Web(
+            int port,
+            Path certificatePath,
+            Path privateKeyPath,
+            String privateKeyPassword,
+            Map<String, String> users) {
+        public Web {
+            if (port < 1 || port > 65535) throw new IllegalArgumentException("web.port must be 1..65535");
+            if (certificatePath == null) throw new IllegalArgumentException("web.tls.certificate is required");
+            if (privateKeyPath == null) throw new IllegalArgumentException("web.tls.privateKey is required");
+            privateKeyPassword = privateKeyPassword == null ? "" : privateKeyPassword;
+            if (users == null || users.isEmpty()) throw new IllegalArgumentException("at least one web user is required");
+            users.forEach((username, password) -> {
+                if (username == null || username.isBlank() || username.contains(":")) {
+                    throw new IllegalArgumentException("web usernames must be non-empty and cannot contain ':'");
+                }
+                if (password == null || password.isEmpty()) {
+                    throw new IllegalArgumentException("web passwords cannot be empty");
+                }
+            });
+            users = Map.copyOf(users);
+        }
+    }
+
+    public Config {
+        if (airConditioners == null || airConditioners.isEmpty()) {
+            throw new IllegalArgumentException("at least one air conditioner is required");
+        }
+        airConditioners = List.copyOf(airConditioners);
+        Set<String> ids = new HashSet<>();
+        Set<Integer> unitIds = new HashSet<>();
+        Set<String> devices = new HashSet<>();
+        devices.add(modbusSerial.device());
+        for (AirConditioner ac : airConditioners) {
+            if (!ids.add(ac.id())) throw new IllegalArgumentException("duplicate AC id: " + ac.id());
+            if (!unitIds.add(ac.modbusUnitId())) {
+                throw new IllegalArgumentException("duplicate Modbus unit ID: " + ac.modbusUnitId());
+            }
+            if (!devices.add(ac.serial().device())) {
+                throw new IllegalArgumentException("serial devices must be unique: " + ac.serial().device());
+            }
+        }
         if (logLimitBytes < 65_536) throw new IllegalArgumentException("log.limitBytes must be at least 65536");
         if (logFiles < 1) throw new IllegalArgumentException("log.files must be positive");
-        if (controllerMac.length != 6) throw new IllegalArgumentException("controller.mac must contain six octets");
     }
 
     public static Config load(Path path) throws IOException {
@@ -45,16 +113,33 @@ public record Config(
         try (InputStream input = Files.newInputStream(path)) {
             p.load(input);
         }
+        List<AirConditioner> airConditioners = new ArrayList<>();
+        for (String id : list(required(p, "ac.instances"))) {
+            String prefix = "ac." + id;
+            airConditioners.add(new AirConditioner(
+                    id,
+                    p.getProperty(prefix + ".name", id).trim(),
+                    serial(p, prefix, 9600),
+                    integer(p, prefix + ".modbusUnitId", -1),
+                    parseMac(required(p, prefix + ".controllerMac")),
+                    Duration.ofSeconds(integer(p, prefix + ".staleAfterSeconds", 30))));
+        }
+        Map<String, String> users = new LinkedHashMap<>();
+        for (String username : list(required(p, "web.users"))) {
+            users.put(username, required(p, "web.user." + username + ".password"));
+        }
         return new Config(
-                serial(p, "ac", 9600),
+                airConditioners,
                 serial(p, "modbus", 9600),
-                integer(p, "modbus.unitId", 1),
-                integer(p, "web.port", 8080),
+                new Web(
+                        integer(p, "web.port", 8443),
+                        Path.of(required(p, "web.tls.certificate")),
+                        Path.of(required(p, "web.tls.privateKey")),
+                        p.getProperty("web.tls.privateKeyPassword", ""),
+                        users),
                 Path.of(p.getProperty("log.path", "/var/log/cool-raspberries/gateway.log")),
                 integer(p, "log.limitBytes", 5_000_000),
-                integer(p, "log.files", 5),
-                parseMac(p.getProperty("controller.mac", "00:00:00:00:00:00")),
-                Duration.ofSeconds(integer(p, "ac.staleAfterSeconds", 30)));
+                integer(p, "log.files", 5));
     }
 
     private static Serial serial(Properties p, String prefix, int defaultBaud) {
@@ -64,6 +149,16 @@ public record Config(
                 integer(p, prefix + ".dataBits", 8),
                 integer(p, prefix + ".stopBits", 1),
                 parseParity(p.getProperty(prefix + ".parity", "none")));
+    }
+
+    private static List<String> list(String value) {
+        List<String> result = new ArrayList<>();
+        for (String item : value.split(",")) {
+            String trimmed = item.trim();
+            if (trimmed.isEmpty()) throw new IllegalArgumentException("configuration list contains an empty item");
+            result.add(trimmed);
+        }
+        return result;
     }
 
     private static int parseParity(String value) {
@@ -77,7 +172,7 @@ public record Config(
 
     private static byte[] parseMac(String value) {
         String compact = value.replace(":", "").replace("-", "").trim();
-        if (compact.length() != 12) throw new IllegalArgumentException("controller.mac must contain 12 hex digits");
+        if (compact.length() != 12) throw new IllegalArgumentException("controller MAC must contain 12 hex digits");
         return HexFormat.of().parseHex(compact);
     }
 

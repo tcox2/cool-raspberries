@@ -1,3 +1,5 @@
+exports_files(["rules_jvm_external++maven+maven_install.json"])
+
 java_library(
     name = "gateway",
     srcs = glob(
@@ -7,8 +9,11 @@ java_library(
     resources = ["src/main/resources/cr/web/home.mustache"],
     visibility = ["//visibility:private"],
     deps = [
-        "@jmustache//jar",
-        "@jserialcomm//jar",
+        "@maven//:com_fazecast_jSerialComm",
+        "@maven//:com_samskivert_jmustache",
+        "@maven//:io_javalin_community_ssl_ssl_plugin",
+        "@maven//:io_javalin_javalin",
+        "@maven//:org_slf4j_slf4j_jdk14",
     ],
 )
 
@@ -52,28 +57,20 @@ rm -rf "$$staging"
     visibility = ["//visibility:public"],
 )
 
-java_library(
-    name = "test-code",
-    testonly = True,
-    srcs = glob(["src/test/java/**/*.java"]),
-    deps = [
-        ":gateway",
-        "@junit_platform_console//jar",
-    ],
-)
-
 java_test(
     name = "all-tests",
+    srcs = glob(["src/test/java/**/*.java"]),
+    resources = glob(["src/test/resources/**"]),
     args = [
         "execute",
-        "--scan-class-path",
+        "--select-package=cr",
         "--details=tree",
     ],
-    main_class = "org.junit.platform.console.ConsoleLauncher",
-    runtime_deps = [
-        ":test-code",
-        "@junit_platform_console//jar",
+    deps = [
+        ":gateway",
+        "@maven//:org_junit_platform_junit_platform_console_standalone",
     ],
+    main_class = "org.junit.platform.console.ConsoleLauncher",
     use_testrunner = False,
 )
 

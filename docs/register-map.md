@@ -3,6 +3,12 @@
 The Raspberry Pi is a Modbus RTU server (traditionally called a slave). The
 external controller is the client/master.
 
+Every configured air conditioner has an independent register bank and a unique
+unit ID from `ac.<id>.modbusUnitId`. All unit IDs share the single serial port
+configured by `modbus.*`. Requests to an unconfigured unit ID are ignored.
+Write broadcasts to unit 0 are applied to every configured AC and produce no
+response, as required by Modbus RTU.
+
 Addresses below are zero-based protocol addresses. Software that displays
 holding registers as `40001` may show address 0 as 40001; input register 0 may
 similarly appear as `30001`.

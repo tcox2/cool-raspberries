@@ -50,6 +50,7 @@ fi
 usermod -a -G dialout cool-raspberries
 
 install -d -m 0755 /opt/cool-raspberries /etc/cool-raspberries
+install -d -m 0750 -o root -g cool-raspberries /etc/cool-raspberries/tls
 install -m 0644 "$jar" /opt/cool-raspberries/cool-raspberries.jar
 install -m 0644 "$project_dir/deploy/cool-raspberries.service" /etc/systemd/system/cool-raspberries.service
 
@@ -85,6 +86,9 @@ if [ ! -f /etc/cool-raspberries/gateway.properties ]; then
     /etc/cool-raspberries/gateway.properties
   echo "Created /etc/cool-raspberries/gateway.properties; configure it before starting."
 fi
+
+echo "Install the configured PEM certificate and private key under /etc/cool-raspberries/tls."
+echo "Keep the private key owned by root:cool-raspberries with mode 0640 or stricter."
 
 systemctl daemon-reload
 systemctl enable cool-raspberries.service

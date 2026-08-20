@@ -1,37 +1,41 @@
-# HTTP control UI
+# HTTPS control UI
 
-The gateway serves a simple, table-based control page at:
+The gateway serves its control page at:
 
 ```text
-http://<raspberry-pi-address>:8080/
+https://<raspberry-pi-address>:8443/
 ```
 
-The port is set by `web.port`. The server always listens on `0.0.0.0` and has
-no authentication, so use a firewall or reverse proxy to control which clients
-can reach it.
+The port, PEM certificate chain, PEM private key, optional private-key password,
+and Basic authentication users are configured with the `web.*` properties.
+There is no insecure HTTP listener. Every route, including health checks,
+requires valid Basic credentials. Because Basic authentication sends a reusable
+credential with each request, it must only be used over HTTPS.
 
-The page is rendered entirely on the server and contains no JavaScript. Status
-is a snapshot taken when the page is loaded. Use `Refresh status` to request a
-new snapshot with an ordinary HTTP GET form.
+The page is rendered entirely on the server and contains no JavaScript. Select
+an air conditioner by its configured name; its stable ID remains in the URL and
+in control form submissions. Status is a snapshot taken when the page is loaded.
+Use `Refresh status` to request a new snapshot.
 
 ## Status display
 
 | Display | Meaning |
 |---|---|
+| Modbus unit | Unit ID used to address this AC on the shared Modbus RTU bus. |
 | Connection | `AC online` when a valid AC state frame is recent. Otherwise it shows `AC status stale` and the age of the last valid frame in seconds. Before any valid frame, the age is 65535 seconds. |
 | Return air | Reported return-air temperature in degrees Celsius, shown to one decimal place. The underlying UART encoding has not yet been verified on hardware. |
 | Power | Observed AC power state: `On` or `Off`. |
 | Mode | Observed mode: `Auto`, `Cool`, `Dry`, `Fan`, or `Heat`. An unrecognized numeric code is displayed as a number. |
 | Fan | Observed fan code from 0 through 7. The physical meaning of each code is model-specific. |
 
-These rows show observed state from the air conditioner. They are distinct
-from the requested values in the control section.
+These rows show observed state from the selected air conditioner. They are
+distinct from the requested values in its control section.
 
 ## Controls
 
-Controls are populated from the gateway's holding registers. The gateway
+Controls are populated from the selected AC's holding registers. The gateway
 initializes those registers from the first valid A3 state frame received from
-the air conditioner.
+that AC.
 
 | UI control | Holding address | Values | Effect |
 |---|---:|---|---|
@@ -42,24 +46,24 @@ the air conditioner.
 | Turbo | 4 | `Off` or `On` | Requests maximum-output/turbo operation. Whether the unit accepts it can depend on the selected mode. |
 | Quiet | 5 | `Off` or `On` | Requests quiet operation. Whether the unit accepts it can depend on the selected mode. |
 
-Each control includes this information in the adjacent Description column on
-the web page.
-
-### Apply controls
-
-`Apply controls` submits all six visible fields together in a standard HTML
-form to `POST /control`. The gateway validates the complete set before changing
-any holding register, so the web update is atomic.
+`Apply controls` submits all six visible fields and the selected AC ID to
+`POST /control`. The gateway validates the complete set before changing any
+holding register, so the update is atomic and cannot spill into another AC.
 
 After a successful submission, the server redirects the browser back to the
-page and displays `Control request accepted.` A rejected value or unavailable
-control state is displayed as an error page using the same layout.
+selected AC and displays `Control request accepted.` A rejected value or
+unavailable control state is displayed as an error using the same layout.
 
-The gateway rejects control requests until it has received the first valid A3
-state frame. It also rejects values outside the documented range. The page may
-remain usable while status is stale, but a successful request only means that
-the gateway accepted the requested value; observed state confirms whether the
-air conditioner subsequently applied it.
+The gateway rejects control requests until that AC has received its first valid
+A3 state frame. A successful request means that the gateway accepted the value;
+observed state confirms whether the air conditioner subsequently applied it.
+
+## Health checks
+
+- `GET /health` returns 200 only when every configured AC is current.
+- `GET /health/{ac-id}` returns the health of one AC.
+
+Both endpoints require the same Basic authentication credentials as the UI.
 
 ## Controls not currently shown
 

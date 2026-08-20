@@ -4,6 +4,7 @@ import cr.Config;
 import cr.core.RegisterBank;
 import cr.protocol.AcFrameDecoder;
 import cr.protocol.Crc16;
+import cr.protocol.TrafficLog;
 import cr.serial.JSerialEndpoint;
 import cr.serial.SerialEndpoint;
 
@@ -11,7 +12,6 @@ import cr.serial.SerialEndpoint;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,13 +19,13 @@ import java.util.logging.Logger;
 public final class AcWorker implements Runnable, AutoCloseable {
     private static final Logger LOG = Logger.getLogger(AcWorker.class.getName());
     private static final Duration HEARTBEAT_INTERVAL = Duration.ofSeconds(60);
-    private final Config config;
+    private final Config.AirConditioner config;
     private final RegisterBank registers;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private volatile SerialEndpoint activeSerial;
     private byte[] lastA3;
 
-    public AcWorker(Config config, RegisterBank registers) {
+    public AcWorker(Config.AirConditioner config, RegisterBank registers) {
         this.config = config;
         this.registers = registers;
     }
@@ -34,9 +34,9 @@ public final class AcWorker implements Runnable, AutoCloseable {
     public void run() {
         long backoffMillis = 1_000;
         while (running.get()) {
-            try (SerialEndpoint serial = JSerialEndpoint.open(config.acSerial())) {
+            try (SerialEndpoint serial = JSerialEndpoint.open(config.serial())) {
                 activeSerial = serial;
-                LOG.info(() -> "AC serial connected: " + serial.description());
+                LOG.info(() -> "AC " + config.id() + " serial connected: " + serial.description());
                 backoffMillis = 1_000;
                 process(serial);
             } catch (Exception error) {
@@ -58,25 +58,35 @@ public final class AcWorker implements Runnable, AutoCloseable {
         while (running.get()) {
             int count = serial.read(one, 0, 1);
             if (count == 1) {
+                byte[] received = {one[0]};
+                LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "RX", received,
+                        TrafficLog.rawMeaning("proprietary AC UART")));
                 decoder.accept(Byte.toUnsignedInt(one[0])).ifPresent(this::handleFrame);
             }
             Instant now = Instant.now();
             if (!now.isBefore(nextHeartbeat)) {
-                serial.write(AcProtocol.heartbeat());
+                byte[] heartbeat = AcProtocol.heartbeat();
+                LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "TX", heartbeat,
+                        TrafficLog.acFrame(heartbeat)));
+                serial.write(heartbeat);
                 nextHeartbeat = now.plus(HEARTBEAT_INTERVAL);
             }
             if (lastA3 != null && registers.consumeControlsDirty()) {
                 byte[] frame = AcProtocol.configuration(lastA3, registers.controlsSnapshot(), config.controllerMac());
+                LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "TX", frame,
+                        TrafficLog.acFrame(frame)));
                 serial.write(frame);
-                LOG.fine(() -> "sent A1 control frame " + HexFormat.ofDelimiter(" ").formatHex(frame));
             }
         }
     }
 
     private void handleFrame(byte[] frame) {
+        LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "RX-FRAME", frame,
+                TrafficLog.acFrame(frame)));
         if (!AcProtocol.hasEnvelope(frame) || !Crc16.validAcFrame(frame)) {
             registers.recordCrcError();
-            LOG.fine(() -> "rejected invalid AC frame " + HexFormat.ofDelimiter(" ").formatHex(frame));
+            LOG.warning(() -> TrafficLog.entry("ac/" + config.id(), "RX-REJECTED", frame,
+                    "rejected proprietary AC frame: invalid envelope or CRC"));
             return;
         }
         switch (AcProtocol.frameType(frame)) {
@@ -102,8 +112,7 @@ public final class AcWorker implements Runnable, AutoCloseable {
                 };
                 registers.updateRemoteState(state);
             }
-            default -> LOG.finer(() -> "ignored valid AC frame type "
-                    + Integer.toHexString(AcProtocol.frameType(frame)));
+            default -> { }
         }
     }
 

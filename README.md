@@ -3,14 +3,15 @@
 A reliability-oriented Java 21 gateway for Raspberry Pi:
 
 ```text
-Air-conditioner UART ⇄ Java gateway ⇄ Modbus RTU
-                              ⇅
-                         HTTP control UI
+Air-conditioner UARTs ⇄ Java gateway ⇄ one Modbus RTU bus
+                               ⇅
+                    authenticated HTTPS control UI
 ```
 
-The service talks to the split air conditioner over one serial port, exposes
-control and status registers as a Modbus RTU server on a second serial port,
-serves a small web UI, and writes rotating log files.
+The service talks to one or more split air conditioners over dedicated serial
+ports. Each air conditioner is exposed as a separate Modbus unit on one shared
+Modbus RTU serial port. The service also provides an authenticated HTTPS UI and
+writes rotating log files.
 
 ## Implementation status
 
@@ -32,10 +33,10 @@ java -jar bazel-bin/cool-raspberries_deploy.jar \
   config/gateway.properties.example
 ```
 
-The Bazel build uses a pinned Java 21 toolchain. Its two external JARs are
-downloaded from Maven Central and verified against SHA-256 checksums.
-The deploy JAR contains the jSerialComm native serial library. The web server
-is the JDK's built-in `jdk.httpserver`; no application server is required.
+The Bazel build uses a pinned Java 21 toolchain. External JARs are downloaded
+from Maven Central and pinned with SHA-256 checksums. The deploy JAR contains
+the jSerialComm native serial library, Javalin, its embedded Jetty server, and
+the Javalin TLS plugin; no separate application server is required.
 The release archive is written to `bazel-bin/cool-raspberries.tar.gz`.
 
 ## Raspberry Pi installation
@@ -48,8 +49,11 @@ The release archive is written to `bazel-bin/cool-raspberries.tar.gz`.
    ```
 2. Enter the extracted `cool-raspberries` directory and run
    `sudo scripts/install.sh`.
-3. Edit `/etc/cool-raspberries/gateway.properties`.
-4. Prefer stable `/dev/serial/by-id/...` paths for both adapters.
+3. Install a PEM certificate chain and its private key under
+   `/etc/cool-raspberries/tls`, then edit
+   `/etc/cool-raspberries/gateway.properties` with their paths and at least one
+   Basic authentication user.
+4. Prefer stable `/dev/serial/by-id/...` paths for every adapter.
 5. Ensure SSH is enabled before disconnecting the display from a headless Pi.
 6. Reboot once to activate the watchdog and start the gateway.
 7. Inspect `systemctl status cool-raspberries` and the configured log file.
@@ -68,31 +72,45 @@ For Modbus RS-485, use an adapter that controls transmit direction
 automatically. The service does not currently toggle a separate GPIO or RTS
 line for a bare MAX485-style transceiver.
 
-The built-in HTTP server has no authentication and always binds to `0.0.0.0`.
-Use a host or network firewall to restrict access, and do not expose it directly
-to the internet. Put access control and TLS on a reverse proxy if remote clients
-require those protections.
+The HTTPS server uses Javalin/Jetty, always binds to `0.0.0.0`, disables its
+insecure HTTP connector, and requires Basic authentication on every route.
+TLS certificate, private-key, username, and password settings come from the
+properties file. Use a host or network firewall as an additional boundary.
 
 ## Interfaces
 
 - [Modbus register map](docs/register-map.md)
 - [HTTP control UI](docs/web-ui.md)
+- [Serial traffic logging](docs/logging.md)
 - [Reverse-engineered UART protocol](docs/protocol.md)
 - `POST /control` — server-rendered HTML form submission for visible controls
-- `GET /health` — HTTP 200 when AC state is current, otherwise 503
-- `GET /` — control and status UI
+- `GET /health` — HTTPS 200 when every configured AC is current, otherwise 503
+- `GET /health/{ac-id}` — health of one configured AC
+- `GET /?ac={ac-id}` — AC selector, control, and status UI
 
 ## Design
 
-The AC worker is the only component that writes to the proprietary UART.
+Each AC worker is the only component that writes to its proprietary UART.
 Modbus and HTTP requests update a validated register bank; the AC worker turns
 the latest coherent snapshot into an A1 frame. Each serial worker reconnects
 with bounded exponential backoff. Incoming AC frames are length-bounded and
 CRC-validated before state is published.
 
-The Modbus server currently implements holding and input registers only. It
-uses standard RTU CRC byte ordering, which differs from the proprietary
-protocol's on-wire ordering.
+The Modbus server routes each configured unit ID to an independent register
+bank. It currently implements holding and input registers only and uses standard
+RTU CRC byte ordering, which differs from the proprietary protocol's on-wire
+ordering.
+
+Every serial receive chunk and transmit attempt is logged at `INFO` with its
+hexadecimal bytes and a description. Complete AC frames and Modbus messages get
+additional protocol-aware entries describing their type, addresses, controls,
+state, register range, values, CRC result, or exception. Logs rotate according
+to `log.limitBytes` and `log.files`.
+
+Authenticated web requests are audit-logged with username, client address,
+method, path, response status, target AC, and a description of the action.
+Accepted control changes include every submitted setting; rejected changes
+include the reason. Passwords and authorization headers are never logged.
 
 ## Protocol research
 

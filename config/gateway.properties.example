@@ -1,27 +1,49 @@
-# Air-conditioner UART. Use stable /dev/serial/by-id paths where available.
-ac.device=/dev/serial/by-id/replace-with-ac-adapter
-ac.baud=9600
-ac.dataBits=8
-ac.stopBits=1
-ac.parity=none
-ac.staleAfterSeconds=30
+# Comma-separated stable IDs. Add another block for every indoor unit.
+ac.instances=living-room,bedroom
 
-# Modbus RTU server/slave UART. This must be a different serial device.
+# Each air conditioner needs a dedicated UART adapter and a unique Modbus unit ID.
+ac.living-room.name=Living room
+ac.living-room.device=/dev/serial/by-id/replace-with-living-room-ac-adapter
+ac.living-room.baud=9600
+ac.living-room.dataBits=8
+ac.living-room.stopBits=1
+ac.living-room.parity=none
+ac.living-room.modbusUnitId=1
+ac.living-room.staleAfterSeconds=30
+ac.living-room.controllerMac=00:00:00:00:00:00
+
+ac.bedroom.name=Bedroom
+ac.bedroom.device=/dev/serial/by-id/replace-with-bedroom-ac-adapter
+ac.bedroom.baud=9600
+ac.bedroom.dataBits=8
+ac.bedroom.stopBits=1
+ac.bedroom.parity=none
+ac.bedroom.modbusUnitId=2
+ac.bedroom.staleAfterSeconds=30
+ac.bedroom.controllerMac=00:00:00:00:00:00
+
+# One shared Modbus RTU server UART. Requests are routed by unit ID above.
 modbus.device=/dev/serial/by-id/replace-with-rs485-adapter
 modbus.baud=9600
 modbus.dataBits=8
 modbus.stopBits=1
 modbus.parity=none
-modbus.unitId=1
 
-# The unauthenticated HTTP interface always listens on all IPv4 interfaces.
-web.port=8080
+# HTTPS is mandatory. PEM certificate chains and private keys are supported.
+web.port=8443
+web.tls.certificate=/etc/cool-raspberries/tls/certificate.pem
+web.tls.privateKey=/etc/cool-raspberries/tls/private-key.pem
+# Set only when the PEM private key is encrypted.
+web.tls.privateKeyPassword=
 
-# FileHandler rotates at this size and retains this many files.
+# Comma-separated Basic authentication users. Use a distinct password per user.
+web.users=admin,operator
+web.user.admin.password=replace-with-a-long-random-password
+web.user.operator.password=replace-with-another-long-random-password
+
+# Full RX/TX wire traffic is logged at INFO with hex bytes and decoded meanings.
+# FileHandler rotates at this size and retains this many files; increase these
+# values if longer traffic retention is required.
 log.path=/var/log/cool-raspberries/gateway.log
 log.limitBytes=5000000
 log.files=5
-
-# Six bytes inserted into A1 control frames. Set this to the identity expected
-# by the indoor unit; all zeroes have not been confirmed as safe on hardware.
-controller.mac=00:00:00:00:00:00
