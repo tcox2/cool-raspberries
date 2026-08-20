@@ -41,6 +41,25 @@ The release archive is written to `bazel-bin/cool-raspberries.tar.gz`.
 
 ## Raspberry Pi installation
 
+The recommended installation uses the signed
+[Raspberry Pi OS APT repository](docs/apt-repository.md). It installs Java 21
+as a dependency and supports 64-bit Raspberry Pi OS on Raspberry Pi 5:
+
+```sh
+curl -fsSL https://tcox2.github.io/cool-raspberries-apt/apt/repository-key.gpg \
+  | sudo tee /usr/share/keyrings/cool-raspberries.gpg >/dev/null
+echo "deb [arch=arm64 signed-by=/usr/share/keyrings/cool-raspberries.gpg] https://tcox2.github.io/cool-raspberries-apt/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/cool-raspberries.list
+sudo apt update
+sudo apt install cool-raspberries
+```
+
+The package leaves all real configuration and secrets on the Raspberry Pi and
+does not start the service until it has been configured. Package upgrades do
+not overwrite `/etc/cool-raspberries/gateway.properties` or TLS files.
+
+For a manual release-archive installation instead:
+
 1. Download a release archive and its `SHA256SUMS` file, then verify and extract
    the archive:
    ```sh

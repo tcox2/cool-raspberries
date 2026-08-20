@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cool Raspberries APT repository</title>
+  <style>
+    body { font: 17px/1.55 system-ui, sans-serif; max-width: 52rem; margin: 3rem auto; padding: 0 1rem; color: #202124; }
+    code, pre { font-family: ui-monospace, monospace; }
+    pre { overflow-x: auto; padding: 1rem; background: #f4f6f8; border-radius: .4rem; }
+  </style>
+</head>
+<body>
+  <h1>Cool Raspberries APT repository</h1>
+  <p>This signed repository supports 64-bit Raspberry Pi OS on Raspberry Pi 5, based on Debian 13 (Trixie).</p>
+  <p>On the Raspberry Pi, run:</p>
+  <pre><code>curl -fsSL https://tcox2.github.io/cool-raspberries-apt/apt/repository-key.gpg \
+  | sudo tee /usr/share/keyrings/cool-raspberries.gpg &gt;/dev/null
+
+echo "deb [arch=arm64 signed-by=/usr/share/keyrings/cool-raspberries.gpg] https://tcox2.github.io/cool-raspberries-apt/apt stable main" \
+  | sudo tee /etc/apt/sources.list.d/cool-raspberries.list
+
+sudo apt update
+sudo apt install cool-raspberries</code></pre>
+  <p>The service is enabled but does not start during installation. Configure the Pi-local file at <code>/etc/cool-raspberries/gateway.properties</code>, install its TLS certificate and key, then start it.</p>
+</body>
+</html>

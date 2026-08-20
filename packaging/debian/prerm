@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+case "${1:-}" in
+  remove)
+    systemctl stop cool-raspberries.service >/dev/null 2>&1 || true
+    systemctl disable cool-raspberries.service >/dev/null 2>&1 || true
+    ;;
+esac
+
+exit 0

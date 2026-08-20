@@ -1,0 +1,115 @@
+name: Publish Raspberry Pi APT repository
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apt-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Bazel
+        uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: apt-pages
+          repository-cache: true
+
+      - name: Install Debian repository tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends apt-utils dpkg-dev gnupg
+
+      - name: Test and build
+        run: |
+          bazel test //:tests
+          bazel build //:cool-raspberries_deploy.jar
+
+      - name: Build Debian package
+        id: package
+        shell: bash
+        run: |
+          version="0.1.0~git${GITHUB_RUN_NUMBER}.${GITHUB_SHA::7}"
+          scripts/build-deb.sh "$version" dist
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Import APT signing key
+        id: signing
+        shell: bash
+        env:
+          APT_SIGNING_PRIVATE_KEY_B64: ${{ secrets.APT_SIGNING_PRIVATE_KEY_B64 }}
+        run: |
+          if [[ -z "$APT_SIGNING_PRIVATE_KEY_B64" ]]; then
+            echo "The APT_SIGNING_PRIVATE_KEY_B64 repository secret is not configured." >&2
+            exit 1
+          fi
+          key_file=$(mktemp)
+          trap 'rm -f "$key_file"' EXIT
+          chmod 0600 "$key_file"
+          printf '%s' "$APT_SIGNING_PRIVATE_KEY_B64" | base64 --decode > "$key_file"
+          gpg --batch --import "$key_file"
+          fingerprint=$(gpg --batch --with-colons --list-secret-keys \
+            | awk -F: '$1 == "fpr" { print $10; exit }')
+          if [[ -z "$fingerprint" ]]; then
+            echo "The imported secret does not contain an OpenPGP private key." >&2
+            exit 1
+          fi
+          echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
+
+      - name: Build signed APT repository
+        shell: bash
+        env:
+          APT_SIGNING_FINGERPRINT: ${{ steps.signing.outputs.fingerprint }}
+          APT_SIGNING_KEY_PASSPHRASE: ${{ secrets.APT_SIGNING_KEY_PASSPHRASE }}
+        run: |
+          if [[ -z "$APT_SIGNING_KEY_PASSPHRASE" ]]; then
+            echo "The APT_SIGNING_KEY_PASSPHRASE repository secret is not configured." >&2
+            exit 1
+          fi
+          mkdir -p pages
+          scripts/build-apt-repository.sh dist pages/apt stable
+          cp packaging/apt/index.html pages/index.html
+          cp packaging/apt/index.html pages/apt/index.html
+          touch pages/.nojekyll
+
+      - name: Publish APT repository
+        shell: bash
+        env:
+          APT_REPOSITORY_DEPLOY_KEY: ${{ secrets.APT_REPOSITORY_DEPLOY_KEY }}
+        run: |
+          if [[ -z "$APT_REPOSITORY_DEPLOY_KEY" ]]; then
+            echo "The APT_REPOSITORY_DEPLOY_KEY repository secret is not configured." >&2
+            exit 1
+          fi
+
+          install -d -m 0700 ~/.ssh
+          printf '%s' "$APT_REPOSITORY_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 0600 ~/.ssh/id_ed25519
+          ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+
+          git clone git@github.com:tcox2/cool-raspberries-apt.git publish
+          find publish -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf -- {} +
+          cp -R pages/. publish/
+          cd publish
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add --all
+          if git diff --cached --quiet; then
+            echo "APT repository is already current."
+          else
+            git commit -m "Publish cool-raspberries ${{ steps.package.outputs.version }}"
+            git push origin main
+          fi

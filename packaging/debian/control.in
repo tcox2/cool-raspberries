@@ -1,0 +1,13 @@
+Package: cool-raspberries
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: Cool Raspberries maintainers <noreply@github.com>
+Depends: openjdk-21-jre-headless, adduser, systemd
+Homepage: https://github.com/tcox2/cool-raspberries
+Installed-Size: @INSTALLED_SIZE@
+Description: Air-conditioner to Modbus RTU gateway
+ A Java 21 gateway that exposes multiple serial-connected air conditioners as
+ separate devices on one Modbus RTU bus and provides an authenticated HTTPS
+ control interface.

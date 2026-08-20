@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+case "${1:-}" in
+  remove|purge)
+    systemctl daemon-reload >/dev/null 2>&1 || true
+    ;;
+esac
+
+if [ "${1:-}" = purge ]; then
+  if [ -f /etc/cool-raspberries/gateway.properties ]; then
+    echo "Keeping /etc/cool-raspberries/gateway.properties because it may contain secrets."
+  fi
+  if [ -d /etc/cool-raspberries/tls ]; then
+    echo "Keeping /etc/cool-raspberries/tls because it may contain private keys."
+  fi
+fi
+
+exit 0

@@ -3,3 +3,8 @@ __pycache__/
 bazel-*
 .idea/
 *.iml
+
+# Real gateway configuration and TLS material belong only on Raspberry Pis.
+config/*
+!config/gateway.properties.example
+config/tls/
