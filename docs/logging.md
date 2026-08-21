@@ -38,6 +38,13 @@ the log alongside the subsequent write error and stack trace.
 
 Full wire logging can be high volume. Size `log.limitBytes` and `log.files` for
 the number of connected air conditioners and the desired retention period.
+The packaged default is `/tmp/cool-raspberries/gateway.log`. On Raspberry Pi OS
+with `/tmp` mounted as `tmpfs`, this keeps the rotating logs in RAM and they are
+discarded at reboot. The systemd service uses `PrivateTmp`, so this path is
+inside the service's private temporary namespace rather than the host's ordinary
+`/tmp`. Normal application records are written only to this rotating file to
+avoid duplicating high-volume serial traffic in journald; startup failures
+written directly to standard error remain available through `journalctl`.
 
 ## Web audit logging
 

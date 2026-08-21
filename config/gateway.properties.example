@@ -45,6 +45,6 @@ web.user.operator.password=replace-with-another-long-random-password
 # Full RX/TX wire traffic is logged at INFO with hex bytes and decoded meanings.
 # FileHandler rotates at this size and retains this many files; increase these
 # values if longer traffic retention is required.
-log.path=/var/log/cool-raspberries/gateway.log
+log.path=/tmp/cool-raspberries/gateway.log
 log.limitBytes=5000000
 log.files=5

@@ -135,7 +135,7 @@ public record Config(
                         Path.of(required(p, "web.tls.privateKey")),
                         p.getProperty("web.tls.privateKeyPassword", ""),
                         users),
-                Path.of(p.getProperty("log.path", "/var/log/cool-raspberries/gateway.log")),
+                Path.of(p.getProperty("log.path", "/tmp/cool-raspberries/gateway.log")),
                 integer(p, "log.limitBytes", 5_000_000),
                 integer(p, "log.files", 5));
     }

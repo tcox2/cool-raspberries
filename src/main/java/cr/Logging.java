@@ -2,7 +2,6 @@ package cr;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -28,10 +27,6 @@ final class Logging {
                         formatMessage(record), thrown);
             }
         };
-        ConsoleHandler console = new ConsoleHandler();
-        console.setFormatter(formatter);
-        root.addHandler(console);
-
         FileHandler file = new FileHandler(config.logPath().toString(), config.logLimitBytes(), config.logFiles(), true);
         file.setFormatter(formatter);
         root.addHandler(file);
