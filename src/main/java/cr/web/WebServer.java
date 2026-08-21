@@ -29,6 +29,7 @@ import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -98,8 +99,11 @@ public final class WebServer implements AutoCloseable {
                     .generateCertificates(certificates).toArray(Certificate[]::new);
             String pem = java.nio.file.Files.readString(web.privateKeyPath(), StandardCharsets.US_ASCII);
             boolean encrypted = pem.contains("-----BEGIN ENCRYPTED PRIVATE KEY-----");
-            String begin = encrypted ? "-----BEGIN ENCRYPTED PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
-            String end = encrypted ? "-----END ENCRYPTED PRIVATE KEY-----" : "-----END PRIVATE KEY-----";
+            boolean rsaPkcs1 = pem.contains("-----BEGIN RSA PRIVATE KEY-----");
+            String begin = encrypted ? "-----BEGIN ENCRYPTED PRIVATE KEY-----"
+                    : rsaPkcs1 ? "-----BEGIN RSA PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
+            String end = encrypted ? "-----END ENCRYPTED PRIVATE KEY-----"
+                    : rsaPkcs1 ? "-----END RSA PRIVATE KEY-----" : "-----END PRIVATE KEY-----";
             if (!pem.contains(begin)) throw new IOException("TLS private key must use PKCS#8 PEM format");
             byte[] encoded = Base64.getMimeDecoder().decode(pem.replace(begin, "").replace(end, ""));
             PKCS8EncodedKeySpec keySpec;
@@ -112,7 +116,7 @@ public final class WebServer implements AutoCloseable {
                         encryptedKey.getAlgParameters());
                 keySpec = encryptedKey.getKeySpec(cipher);
             } else {
-                keySpec = new PKCS8EncodedKeySpec(encoded);
+                keySpec = new PKCS8EncodedKeySpec(rsaPkcs1 ? wrapRsaPkcs1(encoded) : encoded);
             }
             PrivateKey key = null;
             for (String algorithm : List.of("RSA", "EC", "Ed25519")) {
@@ -131,6 +135,37 @@ public final class WebServer implements AutoCloseable {
         } catch (java.security.GeneralSecurityException error) {
             throw new IOException("Unable to load TLS identity", error);
         }
+    }
+
+    private static byte[] wrapRsaPkcs1(byte[] pkcs1) throws IOException {
+        // PKCS#8 PrivateKeyInfo = SEQUENCE(version, rsaEncryption AlgorithmIdentifier,
+        // OCTET STRING containing the PKCS#1 RSAPrivateKey).
+        byte[] versionAndAlgorithm = {
+                0x02, 0x01, 0x00,
+                0x30, 0x0d, 0x06, 0x09, 0x2a, (byte) 0x86, 0x48, (byte) 0x86,
+                (byte) 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00
+        };
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        body.write(versionAndAlgorithm);
+        body.write(0x04);
+        writeDerLength(body, pkcs1.length);
+        body.write(pkcs1);
+        ByteArrayOutputStream wrapped = new ByteArrayOutputStream();
+        wrapped.write(0x30);
+        writeDerLength(wrapped, body.size());
+        body.writeTo(wrapped);
+        return wrapped.toByteArray();
+    }
+
+    private static void writeDerLength(ByteArrayOutputStream output, int length) {
+        if (length < 128) {
+            output.write(length);
+            return;
+        }
+        int bytes = 0;
+        for (int value = length; value > 0; value >>>= 8) bytes++;
+        output.write(0x80 | bytes);
+        for (int shift = (bytes - 1) * 8; shift >= 0; shift -= 8) output.write(length >>> shift);
     }
 
     public void start() {
