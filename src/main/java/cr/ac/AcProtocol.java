@@ -27,7 +27,7 @@ public final class AcProtocol {
         if (lastA3 == null || lastA3.length != 34) {
             throw new IllegalStateException("a valid A3 frame is required before sending controls");
         }
-        if (controls.length < RegisterBank.REGISTER_COUNT) throw new IllegalArgumentException("control snapshot is incomplete");
+        if (controls.length < RegisterBank.CONTROL_COUNT) throw new IllegalArgumentException("control snapshot is incomplete");
         if (mac.length != 6) throw new IllegalArgumentException("MAC must contain six octets");
 
         byte[] frame = new byte[24];
@@ -40,26 +40,21 @@ public final class AcProtocol {
 
         // A3 decoding indicates a big-endian timer. Hardware verification is
         // still required because the upstream setter contradicted its decoder.
-        frame[10] = (byte) (controls[RegisterBank.TIMER_MINUTES] >>> 8);
-        frame[11] = (byte) controls[RegisterBank.TIMER_MINUTES];
-        frame[12] = lastA3[13];
-        frame[13] = lastA3[14];
-        frame[14] = lastA3[15];
-        frame[15] = lastA3[16];
-
-        frame[12] = bits(frame[12], 0x80, controls[RegisterBank.TURBO] << 7);
-        frame[12] = bits(frame[12], 0x70, controls[RegisterBank.FAN] << 4);
-        frame[12] = bits(frame[12], 0x08, controls[RegisterBank.POWER] << 3);
-        frame[12] = bits(frame[12], 0x07, controls[RegisterBank.MODE]);
-        frame[13] = bits(frame[13], 0x40, controls[RegisterBank.QUIET] << 6);
-        frame[13] = bits(frame[13], 0x0F, controls[RegisterBank.SETPOINT_C] - 16);
-        frame[14] = bits(frame[14], 0xF0, controls[RegisterBank.SWEEP_LR] << 4);
-        frame[14] = bits(frame[14], 0x0F, controls[RegisterBank.SWEEP_UD]);
-        frame[15] = bits(frame[15], 0x80, controls[RegisterBank.DISPLAY] << 7);
-        frame[15] = bits(frame[15], 0x40, controls[RegisterBank.IONIZER] << 6);
-        frame[15] = bits(frame[15], 0x10, controls[RegisterBank.AUX_HEATER] << 4);
-        frame[15] = bits(frame[15], 0x02, controls[RegisterBank.SLEEP] << 1);
-        frame[15] = bits(frame[15], 0x01, controls[RegisterBank.ENERGY_SAVING]);
+        frame[10] = (byte) (controls[RegisterBank.CONTROL_TIMER_MINUTES] >>> 8);
+        frame[11] = (byte) controls[RegisterBank.CONTROL_TIMER_MINUTES];
+        frame[12] = bits(frame[12], 0x80, controls[RegisterBank.CONTROL_TURBO] << 7);
+        frame[12] = bits(frame[12], 0x70, controls[RegisterBank.CONTROL_FAN] << 4);
+        frame[12] = bits(frame[12], 0x08, controls[RegisterBank.CONTROL_POWER] << 3);
+        frame[12] = bits(frame[12], 0x07, controls[RegisterBank.CONTROL_MODE]);
+        frame[13] = bits(frame[13], 0x40, controls[RegisterBank.CONTROL_QUIET] << 6);
+        frame[13] = bits(frame[13], 0x0F, controls[RegisterBank.CONTROL_SETPOINT_C] - 16);
+        frame[14] = bits(frame[14], 0xF0, controls[RegisterBank.CONTROL_SWEEP_LR] << 4);
+        frame[14] = bits(frame[14], 0x0F, controls[RegisterBank.CONTROL_SWEEP_UD]);
+        frame[15] = bits(frame[15], 0x80, controls[RegisterBank.CONTROL_DISPLAY] << 7);
+        frame[15] = bits(frame[15], 0x40, controls[RegisterBank.CONTROL_IONIZER] << 6);
+        frame[15] = bits(frame[15], 0x10, controls[RegisterBank.CONTROL_AUX_HEATER] << 4);
+        frame[15] = bits(frame[15], 0x02, controls[RegisterBank.CONTROL_SLEEP] << 1);
+        frame[15] = bits(frame[15], 0x01, controls[RegisterBank.CONTROL_ENERGY_SAVING]);
         System.arraycopy(mac, 0, frame, 16, mac.length);
         setAcCrc(frame);
         return frame;

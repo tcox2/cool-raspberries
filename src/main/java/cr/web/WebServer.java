@@ -151,6 +151,11 @@ public final class WebServer implements AutoCloseable {
     }
 
     private void home(Context ctx) {
+        if (config.airConditioners().isEmpty()) {
+            auditAction(ctx, "viewed gateway with no configured air conditioners");
+            ctx.contentType("text/html; charset=utf-8").html(emptyHomeHtml());
+            return;
+        }
         Config.AirConditioner ac = selected(ctx.queryParam("ac"));
         auditAction(ctx, "viewed air conditioner id=" + ac.id() + " name=" + ac.name());
         boolean applied = "applied".equals(ctx.queryParam("result"));
@@ -165,20 +170,14 @@ public final class WebServer implements AutoCloseable {
         try {
             int[] values = {
                     integer(ctx.formParam("power"), "power"),
-                    integer(ctx.formParam("mode"), "mode"),
-                    integer(ctx.formParam("fan"), "fan"),
-                    integer(ctx.formParam("setpoint"), "setpoint"),
-                    integer(ctx.formParam("turbo"), "turbo"),
-                    integer(ctx.formParam("quiet"), "quiet")
+                    integer(ctx.formParam("temperature"), "temperature"),
+                    integer(ctx.formParam("sleepTimer"), "sleep timer")
             };
             bank.writeHolding(0, values);
             auditAction(ctx, "updated air conditioner id=" + ac.id() + " name=" + ac.name()
                     + ": power=" + values[0]
-                    + ", mode=" + modeName(values[1]) + "(" + values[1] + ")"
-                    + ", fan=" + values[2]
-                    + ", setpoint=" + values[3] + "°C"
-                    + ", turbo=" + values[4]
-                    + ", quiet=" + values[5]);
+                    + ", temperature=" + values[1] + "°C"
+                    + ", sleepTimer=" + values[2] + " minutes");
             ctx.status(303).header("Location", "/?ac=" + ac.id() + "&result=applied");
         } catch (IllegalStateException notReady) {
             auditAction(ctx, "control update rejected for air conditioner id=" + ac.id()
@@ -210,7 +209,7 @@ public final class WebServer implements AutoCloseable {
     }
 
     private static boolean online(RegisterBank bank) {
-        return bank.readInput(RegisterBank.STATUS_AC_ONLINE, 1)[0] == 1;
+        return bank.isOnline();
     }
 
     private Config.AirConditioner selected(String id) {
@@ -239,11 +238,12 @@ public final class WebServer implements AutoCloseable {
         RegisterBank bank = registers.get(ac.id());
         int[] input = bank.readInput(0, RegisterBank.REGISTER_COUNT);
         int[] holding = bank.readHolding(0, RegisterBank.REGISTER_COUNT);
-        boolean online = input[RegisterBank.STATUS_AC_ONLINE] == 1;
+        boolean online = bank.isOnline();
         String connection = online ? "AC online"
-                : "AC status stale (" + input[RegisterBank.STATUS_LAST_FRAME_AGE_SECONDS] + "s)";
+                : "AC status stale (" + bank.lastValidFrameAgeSeconds() + "s)";
 
         Map<String, Object> context = new HashMap<>();
+        context.put("hasAirConditioners", true);
         context.put("airConditioners", airConditionerOptions(ac.id()));
         context.put("acId", ac.id());
         context.put("acName", ac.name());
@@ -254,23 +254,19 @@ public final class WebServer implements AutoCloseable {
         context.put("connectionClass", online ? "online" : "offline");
         context.put("connection", connection);
         context.put("temperature", String.format(Locale.ROOT, "%.1f °C",
-                input[RegisterBank.STATUS_RETURN_AIR_TENTHS_C] / 10.0));
+                input[RegisterBank.STATUS_TEMPERATURE_TENTHS_C] / 10.0));
         context.put("powerStatus", input[RegisterBank.STATUS_POWER] == 1 ? "On" : "Off");
-        context.put("modeStatus", modeName(input[RegisterBank.STATUS_MODE]));
-        context.put("fanStatus", input[RegisterBank.STATUS_FAN]);
+        context.put("sleepTimerStatus", input[RegisterBank.STATUS_SLEEP_TIMER_MINUTES]);
         context.put("powerOff", holding[RegisterBank.POWER] == 0);
         context.put("powerOn", holding[RegisterBank.POWER] == 1);
-        context.put("modeAuto", holding[RegisterBank.MODE] == 0);
-        context.put("modeCool", holding[RegisterBank.MODE] == 1);
-        context.put("modeDry", holding[RegisterBank.MODE] == 2);
-        context.put("modeFan", holding[RegisterBank.MODE] == 3);
-        context.put("modeHeat", holding[RegisterBank.MODE] == 4);
-        context.put("fanValue", holding[RegisterBank.FAN]);
-        context.put("setpointValue", holding[RegisterBank.SETPOINT_C]);
-        context.put("turboOff", holding[RegisterBank.TURBO] == 0);
-        context.put("turboOn", holding[RegisterBank.TURBO] == 1);
-        context.put("quietOff", holding[RegisterBank.QUIET] == 0);
-        context.put("quietOn", holding[RegisterBank.QUIET] == 1);
+        context.put("temperatureValue", holding[RegisterBank.TEMPERATURE_C]);
+        context.put("sleepTimerValue", holding[RegisterBank.SLEEP_TIMER_MINUTES]);
+        return homeTemplate.execute(context);
+    }
+
+    private String emptyHomeHtml() {
+        Map<String, Object> context = new HashMap<>();
+        context.put("hasAirConditioners", false);
         return homeTemplate.execute(context);
     }
 
@@ -283,17 +279,6 @@ public final class WebServer implements AutoCloseable {
                     "selected", ac.id().equals(selectedId)));
         }
         return options;
-    }
-
-    private static String modeName(int mode) {
-        return switch (mode) {
-            case 0 -> "Auto";
-            case 1 -> "Cool";
-            case 2 -> "Dry";
-            case 3 -> "Fan";
-            case 4 -> "Heat";
-            default -> Integer.toString(mode);
-        };
     }
 
     private static Template loadTemplate(String resource) throws IOException {

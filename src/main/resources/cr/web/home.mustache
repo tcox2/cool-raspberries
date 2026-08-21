@@ -36,6 +36,7 @@
 <body>
   <div id="page">
     <h1>Cool Raspberries</h1>
+    {{#hasAirConditioners}}
     <form method="get" action="/" class="selector">
       <label for="ac-selector">Air conditioner</label>
       <select id="ac-selector" name="ac">{{#airConditioners}}<option value="{{id}}"{{#selected}} selected{{/selected}}>{{name}}</option>{{/airConditioners}}</select>
@@ -47,10 +48,9 @@
       <table class="status-table">
         <tr><th scope="row">Modbus unit</th><td class="status-value">{{modbusUnitId}}</td></tr>
         <tr><th scope="row">Connection</th><td class="status-value {{connectionClass}}">{{connection}}</td></tr>
-        <tr><th scope="row">Return air</th><td class="status-value">{{temperature}}</td></tr>
         <tr><th scope="row">Power</th><td class="status-value">{{powerStatus}}</td></tr>
-        <tr><th scope="row">Mode</th><td class="status-value">{{modeStatus}}</td></tr>
-        <tr><th scope="row">Fan</th><td class="status-value">{{fanStatus}}</td></tr>
+        <tr><th scope="row">Temperature</th><td class="status-value">{{temperature}}</td></tr>
+        <tr><th scope="row">Sleep timer</th><td class="status-value">{{sleepTimerStatus}} minutes</td></tr>
       </table>
       <form method="get" action="/" class="refresh"><input type="hidden" name="ac" value="{{acId}}"><button type="submit">Refresh status</button></form>
     </div>
@@ -66,35 +66,27 @@
             <td class="help">Turns the indoor unit off or on.</td>
           </tr>
           <tr>
-            <td class="control-name"><label for="control-mode">Mode</label></td>
-            <td class="control-setting"><select id="control-mode" name="mode"><option value="0"{{#modeAuto}} selected{{/modeAuto}}>Auto</option><option value="1"{{#modeCool}} selected{{/modeCool}}>Cool</option><option value="2"{{#modeDry}} selected{{/modeDry}}>Dry</option><option value="3"{{#modeFan}} selected{{/modeFan}}>Fan</option><option value="4"{{#modeHeat}} selected{{/modeHeat}}>Heat</option></select></td>
-            <td class="help">Selects automatic, cooling, drying, fan-only, or heating operation.</td>
-          </tr>
-          <tr>
-            <td class="control-name"><label for="control-fan">Fan</label></td>
-            <td class="control-setting"><input id="control-fan" name="fan" type="number" min="0" max="7" value="{{fanValue}}" required></td>
-            <td class="help">Model-specific fan code from 0 to 7; exact speeds still need hardware verification.</td>
-          </tr>
-          <tr>
-            <td class="control-name"><label for="control-setpoint">Setpoint °C</label></td>
-            <td class="control-setting"><input id="control-setpoint" name="setpoint" type="number" min="16" max="31" value="{{setpointValue}}" required></td>
+            <td class="control-name"><label for="control-temperature">Temperature °C</label></td>
+            <td class="control-setting"><input id="control-temperature" name="temperature" type="number" min="16" max="31" value="{{temperatureValue}}" required></td>
             <td class="help">Requested target temperature from 16 to 31 °C.</td>
           </tr>
           <tr>
-            <td class="control-name"><label for="control-turbo">Turbo</label></td>
-            <td class="control-setting"><select id="control-turbo" name="turbo"><option value="0"{{#turboOff}} selected{{/turboOff}}>Off</option><option value="1"{{#turboOn}} selected{{/turboOn}}>On</option></select></td>
-            <td class="help">Requests maximum-output operation when supported by the selected mode.</td>
-          </tr>
-          <tr>
-            <td class="control-name"><label for="control-quiet">Quiet</label></td>
-            <td class="control-setting"><select id="control-quiet" name="quiet"><option value="0"{{#quietOff}} selected{{/quietOff}}>Off</option><option value="1"{{#quietOn}} selected{{/quietOn}}>On</option></select></td>
-            <td class="help">Requests reduced-noise operation when supported by the selected mode.</td>
+            <td class="control-name"><label for="control-sleep-timer">Sleep timer</label></td>
+            <td class="control-setting"><input id="control-sleep-timer" name="sleepTimer" type="number" min="0" max="65535" value="{{sleepTimerValue}}" required></td>
+            <td class="help">Minutes until sleep completes; use 0 to disable the sleep timer.</td>
           </tr>
         </table>
         <p class="notice">The air conditioner must send a valid state frame before controls are accepted.</p>
         <p class="actions"><button type="submit">Apply controls</button></p>
       </form>
     </div>
+    {{/hasAirConditioners}}
+    {{^hasAirConditioners}}
+    <div class="panel" id="empty-panel">
+      <h2>No air conditioners configured</h2>
+      <p class="notice">The HTTPS gateway and Modbus RTU bus are ready. Add an air conditioner to the gateway configuration when one is available.</p>
+    </div>
+    {{/hasAirConditioners}}
   </div>
 </body>
 </html>

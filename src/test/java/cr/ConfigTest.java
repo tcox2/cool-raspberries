@@ -32,6 +32,23 @@ class ConfigTest {
         assertEquals("duplicate Modbus unit ID: 1", error.getMessage());
     }
 
+    @Test
+    void allowsNoAirConditioners() throws Exception {
+        Path path = temporaryDirectory.resolve("empty-gateway.properties");
+        Files.writeString(path, """
+                ac.instances=
+                modbus.device=/dev/modbus
+                web.tls.certificate=/etc/certificate.pem
+                web.tls.privateKey=/etc/private-key.pem
+                web.users=admin
+                web.user.admin.password=secret
+                """);
+
+        Config config = Config.load(path);
+
+        assertEquals(0, config.airConditioners().size());
+    }
+
     private Path writeConfig(int firstUnit, int secondUnit) throws Exception {
         Path path = temporaryDirectory.resolve("gateway.properties");
         Files.writeString(path, """

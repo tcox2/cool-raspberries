@@ -87,9 +87,7 @@ public record Config(
     }
 
     public Config {
-        if (airConditioners == null || airConditioners.isEmpty()) {
-            throw new IllegalArgumentException("at least one air conditioner is required");
-        }
+        if (airConditioners == null) throw new IllegalArgumentException("air conditioners are required");
         airConditioners = List.copyOf(airConditioners);
         Set<String> ids = new HashSet<>();
         Set<Integer> unitIds = new HashSet<>();
@@ -114,7 +112,7 @@ public record Config(
             p.load(input);
         }
         List<AirConditioner> airConditioners = new ArrayList<>();
-        for (String id : list(required(p, "ac.instances"))) {
+        for (String id : optionalList(p.getProperty("ac.instances", ""))) {
             String prefix = "ac." + id;
             airConditioners.add(new AirConditioner(
                     id,
@@ -159,6 +157,11 @@ public record Config(
             result.add(trimmed);
         }
         return result;
+    }
+
+    private static List<String> optionalList(String value) {
+        if (value == null || value.isBlank()) return List.of();
+        return list(value);
     }
 
     private static int parseParity(String value) {

@@ -11,21 +11,19 @@ class AcProtocolTest {
     @Test
     void buildsConfigurationFromValidatedControls() {
         byte[] a3 = TestFrames.sampleA3();
-        int[] controls = new int[RegisterBank.REGISTER_COUNT];
-        controls[RegisterBank.POWER] = 1;
-        controls[RegisterBank.MODE] = 4;
-        controls[RegisterBank.FAN] = 5;
-        controls[RegisterBank.SETPOINT_C] = 23;
-        controls[RegisterBank.TURBO] = 1;
-        controls[RegisterBank.QUIET] = 1;
-        controls[RegisterBank.SWEEP_LR] = 3;
-        controls[RegisterBank.SWEEP_UD] = 7;
-        controls[RegisterBank.DISPLAY] = 1;
-        controls[RegisterBank.IONIZER] = 0;
-        controls[RegisterBank.AUX_HEATER] = 1;
-        controls[RegisterBank.SLEEP] = 1;
-        controls[RegisterBank.ENERGY_SAVING] = 0;
-        controls[RegisterBank.TIMER_MINUTES] = 0x1234;
+        int[] controls = new int[RegisterBank.CONTROL_COUNT];
+        controls[RegisterBank.CONTROL_POWER] = 1;
+        controls[RegisterBank.CONTROL_MODE] = 4;
+        controls[RegisterBank.CONTROL_FAN] = 5;
+        controls[RegisterBank.CONTROL_SETPOINT_C] = 23;
+        controls[RegisterBank.CONTROL_TURBO] = 1;
+        controls[RegisterBank.CONTROL_QUIET] = 1;
+        controls[RegisterBank.CONTROL_SWEEP_LR] = 3;
+        controls[RegisterBank.CONTROL_SWEEP_UD] = 7;
+        controls[RegisterBank.CONTROL_DISPLAY] = 1;
+        controls[RegisterBank.CONTROL_AUX_HEATER] = 1;
+        controls[RegisterBank.CONTROL_SLEEP] = 1;
+        controls[RegisterBank.CONTROL_TIMER_MINUTES] = 0x1234;
 
         byte[] frame = AcProtocol.configuration(a3, controls,
                 new byte[]{1, 2, 3, 4, 5, 6});
@@ -41,6 +39,24 @@ class AcProtocolTest {
         assertArrayEquals(new byte[]{1, 2, 3, 4, 5, 6},
                 java.util.Arrays.copyOfRange(frame, 16, 22));
         assertTrue(Crc16.validAcFrame(frame));
+    }
+
+    @Test
+    void doesNotCarryUncontrolledBitsFromObservedState() {
+        byte[] a3 = TestFrames.sampleA3();
+        a3[13] = (byte) 0xff;
+        a3[14] = (byte) 0xff;
+        a3[15] = (byte) 0xff;
+        a3[16] = (byte) 0xff;
+        int[] controls = new int[RegisterBank.CONTROL_COUNT];
+        controls[RegisterBank.CONTROL_SETPOINT_C] = 24;
+
+        byte[] frame = AcProtocol.configuration(a3, controls, new byte[6]);
+
+        assertEquals(0, Byte.toUnsignedInt(frame[12]));
+        assertEquals(8, Byte.toUnsignedInt(frame[13]));
+        assertEquals(0, Byte.toUnsignedInt(frame[14]));
+        assertEquals(0, Byte.toUnsignedInt(frame[15]));
     }
 
 }
