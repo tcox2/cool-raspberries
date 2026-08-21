@@ -15,21 +15,15 @@
     tr:last-child th,tr:last-child td{border-bottom:0}
     .status-table th{width:28%;background:#f5f5f5}
     .status-value{font-weight:bold}
-    .control-table th{background:#f5f5f5}
     .register-table th{background:#f5f5f5}
     .register-table td:first-child{font-family:monospace;font-weight:bold;white-space:nowrap}
-    .control-name{width:18%;font-weight:bold}
-    .control-setting{width:20%}
     input,select,button{font:14px Arial,Helvetica,sans-serif;padding:5px;border:1px solid #777;background:#fff}
     input{width:70px}
     button{background:#24496b;color:#fff;font-weight:bold;cursor:pointer}
     .help{color:#555;line-height:1.35}
-    .actions{margin:0;padding:12px;border-top:1px solid #999;background:#f5f5f5}
     .notice{margin:0;padding:10px 12px;color:#555}
     .offline{color:#b00020}.online{color:#087830}
     .refresh{margin:0;padding:10px 12px;border-top:1px solid #999;background:#f5f5f5}
-    .message{padding:10px 12px;border:1px solid;margin:0 0 16px;font-weight:bold}
-    .success{color:#087830;background:#edf8ef}.error{color:#b00020;background:#fff0f0}
     .selector{margin:0 0 16px;padding:12px;border:1px solid #999;background:#fff}
     .selector label{font-weight:bold;margin-right:8px}
     #result{margin-left:8px}
@@ -44,7 +38,6 @@
       <select id="ac-selector" name="ac">{{#airConditioners}}<option value="{{id}}"{{#selected}} selected{{/selected}}>{{name}}</option>{{/airConditioners}}</select>
       <button type="submit">View</button>
     </form>
-    {{#hasMessage}}<p class="message {{messageClass}}">{{message}}</p>{{/hasMessage}}
     <div class="panel" id="status-panel">
       <h2>{{acName}} status</h2>
       <table class="status-table">
@@ -56,32 +49,7 @@
       </table>
       <form method="get" action="/" class="refresh"><input type="hidden" name="ac" value="{{acId}}"><button type="submit">Refresh status</button></form>
     </div>
-    <div class="panel" id="control-panel">
-      <h2>Controls</h2>
-      <form method="post" action="/control">
-        <input type="hidden" name="ac" value="{{acId}}">
-        <table class="control-table">
-          <tr><th>Control</th><th>Setting</th><th>Description</th></tr>
-          <tr>
-            <td class="control-name"><label for="control-power">Power</label></td>
-            <td class="control-setting"><select id="control-power" name="power"><option value="0"{{#powerOff}} selected{{/powerOff}}>Off</option><option value="1"{{#powerOn}} selected{{/powerOn}}>On</option></select></td>
-            <td class="help">Turns the indoor unit off or on.</td>
-          </tr>
-          <tr>
-            <td class="control-name"><label for="control-temperature">Temperature °C</label></td>
-            <td class="control-setting"><input id="control-temperature" name="temperature" type="number" min="16" max="31" value="{{temperatureValue}}" required></td>
-            <td class="help">Requested target temperature from 16 to 31 °C.</td>
-          </tr>
-          <tr>
-            <td class="control-name"><label for="control-sleep-timer">Sleep timer</label></td>
-            <td class="control-setting"><input id="control-sleep-timer" name="sleepTimer" type="number" min="0" max="65535" value="{{sleepTimerValue}}" required></td>
-            <td class="help">Minutes until sleep completes; use 0 to disable the sleep timer.</td>
-          </tr>
-        </table>
-        <p class="notice">The air conditioner must send a valid state frame before controls are accepted.</p>
-        <p class="actions"><button type="submit">Apply controls</button></p>
-      </form>
-    </div>
+    <div class="panel"><p class="notice">HTTPS is observation only. Use Modbus holding registers to control the air conditioner.</p></div>
     {{/hasAirConditioners}}
     {{^hasAirConditioners}}
     <div class="panel" id="empty-panel">

@@ -79,7 +79,6 @@ public final class WebServer implements AutoCloseable {
             javalin.routes.after(this::securityHeaders);
             javalin.routes.after(this::auditRequest);
             javalin.routes.get("/", this::home);
-            javalin.routes.post("/control", this::formControl);
             javalin.routes.get("/health", this::health);
             javalin.routes.get("/health/{ac}", this::healthOne);
             javalin.routes.exception(IllegalArgumentException.class, (error, ctx) -> {
@@ -214,38 +213,7 @@ public final class WebServer implements AutoCloseable {
         }
         Config.AirConditioner ac = selected(ctx.queryParam("ac"));
         auditAction(ctx, "viewed air conditioner id=" + ac.id() + " name=" + ac.name());
-        boolean applied = "applied".equals(ctx.queryParam("result"));
-        ctx.contentType("text/html; charset=utf-8")
-                .html(homeHtml(ac, applied ? "Control request accepted." : "", false));
-    }
-
-    private void formControl(Context ctx) {
-        String acId = required(ctx.formParam("ac"), "ac");
-        Config.AirConditioner ac = selected(acId);
-        RegisterBank bank = registers.get(ac.id());
-        try {
-            int[] values = {
-                    integer(ctx.formParam("power"), "power"),
-                    integer(ctx.formParam("temperature"), "temperature"),
-                    integer(ctx.formParam("sleepTimer"), "sleep timer")
-            };
-            bank.writeHolding(0, values);
-            auditAction(ctx, "updated air conditioner id=" + ac.id() + " name=" + ac.name()
-                    + ": power=" + values[0]
-                    + ", temperature=" + values[1] + "°C"
-                    + ", sleepTimer=" + values[2] + " minutes");
-            ctx.status(303).header("Location", "/?ac=" + ac.id() + "&result=applied");
-        } catch (IllegalStateException notReady) {
-            auditAction(ctx, "control update rejected for air conditioner id=" + ac.id()
-                    + ": " + notReady.getMessage());
-            ctx.status(409).contentType("text/html; charset=utf-8")
-                    .html(homeHtml(ac, notReady.getMessage(), true));
-        } catch (IllegalArgumentException error) {
-            auditAction(ctx, "control update rejected for air conditioner id=" + ac.id()
-                    + ": " + error.getMessage());
-            ctx.status(400).contentType("text/html; charset=utf-8")
-                    .html(homeHtml(ac, error.getMessage(), true));
-        }
+        ctx.contentType("text/html; charset=utf-8").html(homeHtml(ac));
     }
 
     private void health(Context ctx) {
@@ -276,24 +244,14 @@ public final class WebServer implements AutoCloseable {
                 .orElseThrow(() -> new IllegalArgumentException("unknown air conditioner: " + id));
     }
 
-    private static String required(String value, String name) {
-        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
-        return value;
-    }
-
-    private static int integer(String value, String name) {
-        return Integer.parseInt(required(value, name));
-    }
-
     @Override
     public void close() {
         app.stop();
     }
 
-    private String homeHtml(Config.AirConditioner ac, String message, boolean error) {
+    private String homeHtml(Config.AirConditioner ac) {
         RegisterBank bank = registers.get(ac.id());
         int[] input = bank.readInput(0, RegisterBank.REGISTER_COUNT);
-        int[] holding = bank.readHolding(0, RegisterBank.REGISTER_COUNT);
         boolean online = bank.isOnline();
         String connection = online ? "AC online"
                 : "AC status stale (" + bank.lastValidFrameAgeSeconds() + "s)";
@@ -304,19 +262,12 @@ public final class WebServer implements AutoCloseable {
         context.put("acId", ac.id());
         context.put("acName", ac.name());
         context.put("modbusUnitId", ac.modbusUnitId());
-        context.put("hasMessage", !message.isBlank());
-        context.put("message", message);
-        context.put("messageClass", error ? "error" : "success");
         context.put("connectionClass", online ? "online" : "offline");
         context.put("connection", connection);
         context.put("temperature", String.format(Locale.ROOT, "%.1f °C",
                 input[RegisterBank.STATUS_TEMPERATURE_TENTHS_C] / 10.0));
         context.put("powerStatus", input[RegisterBank.STATUS_POWER] == 1 ? "On" : "Off");
         context.put("sleepTimerStatus", input[RegisterBank.STATUS_SLEEP_TIMER_MINUTES]);
-        context.put("powerOff", holding[RegisterBank.POWER] == 0);
-        context.put("powerOn", holding[RegisterBank.POWER] == 1);
-        context.put("temperatureValue", holding[RegisterBank.TEMPERATURE_C]);
-        context.put("sleepTimerValue", holding[RegisterBank.SLEEP_TIMER_MINUTES]);
         return homeTemplate.execute(context);
     }
 

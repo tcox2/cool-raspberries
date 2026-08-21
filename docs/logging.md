@@ -62,13 +62,12 @@ For example:
 
 ```text
 web-audit user="admin" client="192.0.2.10" method=GET path="/" status=200 action="viewed air conditioner id=living-room name=Living room"
-web-audit user="operator" client="192.0.2.11" method=POST path="/control" status=303 action="updated air conditioner id=bedroom name=Bedroom: power=1, mode=Cool(1), fan=2, setpoint=25°C, turbo=0, quiet=1"
+web-audit user="operator" client="192.0.2.11" method=GET path="/health/bedroom" status=200 action="checked health for air conditioner id=bedroom name=Bedroom: online=true"
 ```
 
 Health checks identify whether aggregate or per-AC health was requested and the
-reported online state. Rejected control submissions include the target AC and
-reason. Authentication failures are logged as `user="unauthenticated"` with a
-401 result.
+reported online state. The HTTPS interface is observation-only. Authentication
+failures are logged as `user="unauthenticated"` with a 401 result.
 
 Passwords, Basic authorization headers, and encoded credentials are never
 included. User-controlled text is escaped before it is placed in an audit line

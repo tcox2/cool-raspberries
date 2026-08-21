@@ -78,7 +78,8 @@ class WebServerTest {
             assertTrue(page.body().contains("0 / 40001"));
             assertTrue(page.body().contains("1 / 30002"));
             assertTrue(page.body().contains("value=\"bedroom\" selected"));
-            assertTrue(page.body().contains("<form method=\"post\" action=\"/control\">"));
+            assertTrue(page.body().contains("HTTPS is observation only"));
+            assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",
                     page.headers().firstValue("Strict-Transport-Security").orElseThrow());
@@ -91,10 +92,8 @@ class WebServerTest {
                             .build(),
                     HttpResponse.BodyHandlers.ofString());
 
-            assertEquals(303, submitted.statusCode());
-            assertEquals("/?ac=bedroom&result=applied",
-                    submitted.headers().firstValue("Location").orElseThrow());
-            assertArrayEquals(new int[]{1, 25, 90}, bedroom.readHolding(0, 3));
+            assertEquals(404, submitted.statusCode());
+            assertArrayEquals(new int[]{0, 24, 0}, bedroom.readHolding(0, 3));
             assertEquals(24, living.readHolding(1, 1)[0]);
         } finally {
             logger.removeHandler(auditCapture);
@@ -104,9 +103,7 @@ class WebServerTest {
                 && message.contains("status=401") && message.contains("authentication failed")));
         assertTrue(audit.stream().anyMatch(message -> message.contains("user=\"admin\"")
                 && message.contains("method=GET") && message.contains("viewed air conditioner id=bedroom")));
-        assertTrue(audit.stream().anyMatch(message -> message.contains("user=\"admin\"")
-                && message.contains("method=POST") && message.contains("updated air conditioner id=bedroom")
-                && message.contains("temperature=25°C") && message.contains("sleepTimer=90 minutes")));
+        assertTrue(audit.stream().noneMatch(message -> message.contains("updated air conditioner")));
         assertTrue(audit.stream().noneMatch(message -> message.contains("test-password")
                 || message.contains("admin:wrong")));
     }

@@ -5,7 +5,7 @@ A reliability-oriented Java 21 gateway for Raspberry Pi:
 ```text
 Air-conditioner UARTs ⇄ Java gateway ⇄ one Modbus RTU bus
                                ⇅
-                    authenticated HTTPS control UI
+                  authenticated HTTPS observation UI
 ```
 
 The service talks to one or more split air conditioners over dedicated serial
@@ -40,7 +40,7 @@ java -jar bazel-bin/cool-raspberries_deploy.jar \
 The Bazel build uses a pinned Java 21 toolchain. External JARs are downloaded
 from Maven Central and pinned with SHA-256 checksums. The deploy JAR contains
 the jSerialComm native serial library, Javalin, its embedded Jetty server, and
-the Javalin TLS plugin; no separate application server is required.
+its embedded Jetty TLS server; no separate application server is required.
 The release archive is written to `bazel-bin/cool-raspberries.tar.gz`.
 
 ## Raspberry Pi installation
@@ -103,18 +103,17 @@ properties file. Use a host or network firewall as an additional boundary.
 ## Interfaces
 
 - [Modbus register map](docs/register-map.md)
-- [HTTP control UI](docs/web-ui.md)
+- [HTTPS observation UI](docs/web-ui.md)
 - [Serial traffic logging](docs/logging.md)
 - [Reverse-engineered UART protocol](docs/protocol.md)
-- `POST /control` — server-rendered HTML form submission for visible controls
 - `GET /health` — HTTPS 200 when every configured AC is current, otherwise 503
 - `GET /health/{ac-id}` — health of one configured AC
-- `GET /?ac={ac-id}` — AC selector, control, and status UI
+- `GET /?ac={ac-id}` — read-only AC selector and status UI
 
 ## Design
 
 Each AC worker is the only component that writes to its proprietary UART.
-Modbus and HTTP requests update a validated register bank; the AC worker turns
+Modbus requests update a validated register bank; the AC worker turns
 the latest coherent snapshot into an A1 frame. Each serial worker reconnects
 with bounded exponential backoff. Incoming AC frames are length-bounded and
 CRC-validated before state is published.
@@ -132,8 +131,8 @@ to `log.limitBytes` and `log.files`.
 
 Authenticated web requests are audit-logged with username, client address,
 method, path, response status, target AC, and a description of the action.
-Accepted control changes include every submitted setting; rejected changes
-include the reason. Passwords and authorization headers are never logged.
+The HTTPS interface is observation-only; control changes are accepted only over
+Modbus. Passwords and authorization headers are never logged.
 
 ## Protocol research
 
