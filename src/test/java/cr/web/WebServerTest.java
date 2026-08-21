@@ -74,6 +74,9 @@ class WebServerTest {
             assertEquals(200, page.statusCode());
             assertTrue(page.body().contains("Bedroom status"));
             assertTrue(page.body().contains("Modbus unit"));
+            assertTrue(page.body().contains("Modbus register guide"));
+            assertTrue(page.body().contains("0 / 40001"));
+            assertTrue(page.body().contains("1 / 30002"));
             assertTrue(page.body().contains("value=\"bedroom\" selected"));
             assertTrue(page.body().contains("<form method=\"post\" action=\"/control\">"));
             assertFalse(page.body().contains("<script"));
@@ -132,6 +135,7 @@ class WebServerTest {
 
             assertEquals(200, page.statusCode());
             assertTrue(page.body().contains("No air conditioners configured"));
+            assertTrue(page.body().contains("Modbus register guide"));
             assertFalse(page.body().contains("action=\"/control\""));
             assertEquals(200, health.statusCode());
             assertEquals("ok\n", health.body());

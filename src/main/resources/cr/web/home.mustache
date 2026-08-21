@@ -16,6 +16,8 @@
     .status-table th{width:28%;background:#f5f5f5}
     .status-value{font-weight:bold}
     .control-table th{background:#f5f5f5}
+    .register-table th{background:#f5f5f5}
+    .register-table td:first-child{font-family:monospace;font-weight:bold;white-space:nowrap}
     .control-name{width:18%;font-weight:bold}
     .control-setting{width:20%}
     input,select,button{font:14px Arial,Helvetica,sans-serif;padding:5px;border:1px solid #777;background:#fff}
@@ -87,6 +89,23 @@
       <p class="notice">The HTTPS gateway and Modbus RTU bus are ready. Add an air conditioner to the gateway configuration when one is available.</p>
     </div>
     {{/hasAirConditioners}}
+    <div class="panel" id="modbus-guide">
+      <h2>Modbus register guide</h2>
+      <p class="notice">Addresses are zero-based. Some Modbus tools show holding register 0 as 40001 and input register 0 as 30001. Use the Modbus unit shown above for the selected air conditioner.</p>
+      <table class="register-table">
+        <tr><th>Holding address</th><th>Requested control (read/write)</th><th>Values</th></tr>
+        <tr><td>0 / 40001</td><td>Power</td><td>0 = off, 1 = on</td></tr>
+        <tr><td>1 / 40002</td><td>Target temperature</td><td>16–31 °C</td></tr>
+        <tr><td>2 / 40003</td><td>Sleep timer</td><td>Minutes; 0 disables</td></tr>
+      </table>
+      <table class="register-table">
+        <tr><th>Input address</th><th>Observed status (read-only)</th><th>Values</th></tr>
+        <tr><td>0 / 30001</td><td>Power</td><td>0 = off, 1 = on</td></tr>
+        <tr><td>1 / 30002</td><td>Measured temperature</td><td>Tenths of a degree Celsius; 235 = 23.5 °C</td></tr>
+        <tr><td>2 / 30003</td><td>Remaining sleep timer</td><td>Minutes</td></tr>
+      </table>
+      <p class="notice">Supported functions: 03 read holding, 04 read input, 06 write one holding, and 16 write multiple holding registers.</p>
+    </div>
   </div>
 </body>
 </html>
