@@ -36,6 +36,7 @@
 <body>
   <div id="page">
     <h1>Cool Raspberries</h1>
+    {{#hasAirConditioners}}
     <form method="get" action="/" class="selector">
       <label for="ac-selector">Air conditioner</label>
       <select id="ac-selector" name="ac">{{#airConditioners}}<option value="{{id}}"{{#selected}} selected{{/selected}}>{{name}}</option>{{/airConditioners}}</select>
@@ -95,6 +96,13 @@
         <p class="actions"><button type="submit">Apply controls</button></p>
       </form>
     </div>
+    {{/hasAirConditioners}}
+    {{^hasAirConditioners}}
+    <div class="panel" id="empty-panel">
+      <h2>No air conditioners configured</h2>
+      <p class="notice">The HTTPS gateway and Modbus RTU bus are ready. Add an air conditioner to the gateway configuration when one is available.</p>
+    </div>
+    {{/hasAirConditioners}}
   </div>
 </body>
 </html>

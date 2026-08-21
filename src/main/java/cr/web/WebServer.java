@@ -151,6 +151,11 @@ public final class WebServer implements AutoCloseable {
     }
 
     private void home(Context ctx) {
+        if (config.airConditioners().isEmpty()) {
+            auditAction(ctx, "viewed gateway with no configured air conditioners");
+            ctx.contentType("text/html; charset=utf-8").html(emptyHomeHtml());
+            return;
+        }
         Config.AirConditioner ac = selected(ctx.queryParam("ac"));
         auditAction(ctx, "viewed air conditioner id=" + ac.id() + " name=" + ac.name());
         boolean applied = "applied".equals(ctx.queryParam("result"));
@@ -244,6 +249,7 @@ public final class WebServer implements AutoCloseable {
                 : "AC status stale (" + input[RegisterBank.STATUS_LAST_FRAME_AGE_SECONDS] + "s)";
 
         Map<String, Object> context = new HashMap<>();
+        context.put("hasAirConditioners", true);
         context.put("airConditioners", airConditionerOptions(ac.id()));
         context.put("acId", ac.id());
         context.put("acName", ac.name());
@@ -271,6 +277,12 @@ public final class WebServer implements AutoCloseable {
         context.put("turboOn", holding[RegisterBank.TURBO] == 1);
         context.put("quietOff", holding[RegisterBank.QUIET] == 0);
         context.put("quietOn", holding[RegisterBank.QUIET] == 1);
+        return homeTemplate.execute(context);
+    }
+
+    private String emptyHomeHtml() {
+        Map<String, Object> context = new HashMap<>();
+        context.put("hasAirConditioners", false);
         return homeTemplate.execute(context);
     }
 

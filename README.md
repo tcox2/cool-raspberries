@@ -13,6 +13,10 @@ ports. Each air conditioner is exposed as a separate Modbus unit on one shared
 Modbus RTU serial port. The service also provides an authenticated HTTPS UI and
 writes rotating log files.
 
+An installation can start with no air conditioners by setting
+`ac.instances=`. The authenticated UI then shows an empty state and the Modbus
+RTU bus remains available until air conditioners are added.
+
 ## Implementation status
 
 The software is complete enough for bench testing, but it has **not been

@@ -108,6 +108,36 @@ class WebServerTest {
                 || message.contains("admin:wrong")));
     }
 
+    @Test
+    void servesAnAuthenticatedEmptyStateWithNoAirConditioners() throws Exception {
+        int port = availablePort();
+        Config populated = config(port);
+        Config empty = new Config(
+                List.of(),
+                populated.modbusSerial(),
+                populated.web(),
+                populated.logPath(),
+                populated.logLimitBytes(),
+                populated.logFiles());
+
+        try (WebServer server = new WebServer(empty, Map.of()); HttpClient client = testClient()) {
+            server.start();
+
+            HttpResponse<String> page = client.send(
+                    request(URI.create("https://127.0.0.1:" + port + "/")).GET().build(),
+                    HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> health = client.send(
+                    request(URI.create("https://127.0.0.1:" + port + "/health")).GET().build(),
+                    HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(200, page.statusCode());
+            assertTrue(page.body().contains("No air conditioners configured"));
+            assertFalse(page.body().contains("action=\"/control\""));
+            assertEquals(200, health.statusCode());
+            assertEquals("ok\n", health.body());
+        }
+    }
+
     private static RegisterBank readyBank() {
         RegisterBank bank = new RegisterBank();
         bank.updateFromA3(TestFrames.sampleA3());

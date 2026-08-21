@@ -1,4 +1,5 @@
-# Comma-separated stable IDs. Add another block for every indoor unit.
+# Comma-separated stable IDs. Leave empty when no indoor units are installed,
+# then add another block for every indoor unit.
 ac.instances=living-room,bedroom
 
 # Each air conditioner needs a dedicated UART adapter and a unique Modbus unit ID.
