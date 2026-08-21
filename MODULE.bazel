@@ -11,8 +11,7 @@ maven.install(
     artifacts = [
         "com.fazecast:jSerialComm:2.11.4",
         "com.samskivert:jmustache:1.16",
-        "io.javalin.community.ssl:ssl-plugin:6.7.0",
-        "io.javalin:javalin:6.7.0",
+        "io.javalin:javalin:7.2.3",
         "org.junit.platform:junit-platform-console-standalone:1.12.2",
         "org.slf4j:slf4j-jdk14:2.0.17",
     ],

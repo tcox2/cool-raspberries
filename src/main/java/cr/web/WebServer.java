@@ -5,14 +5,29 @@ import com.samskivert.mustache.Template;
 import cr.Config;
 import cr.core.RegisterBank;
 import io.javalin.Javalin;
-import io.javalin.community.ssl.SslPlugin;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.spec.PKCS8EncodedKeySpec;
+import javax.crypto.Cipher;
+import javax.crypto.EncryptedPrivateKeyInfo;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -39,42 +54,83 @@ public final class WebServer implements AutoCloseable {
         this.homeTemplate = loadTemplate("/cr/web/home.mustache");
 
         Config.Web web = config.web();
-        SslPlugin ssl = new SslPlugin(tls -> {
-            tls.host = BIND_ADDRESS;
-            tls.insecure = false;
-            tls.secure = true;
-            tls.http2 = true;
-            tls.securePort = web.port();
-            if (web.privateKeyPassword().isEmpty()) {
-                tls.pemFromPath(web.certificatePath().toString(), web.privateKeyPath().toString());
-            } else {
-                tls.pemFromPath(web.certificatePath().toString(), web.privateKeyPath().toString(),
-                        web.privateKeyPassword());
-            }
-        });
+        KeyStore identity = identityStore(web);
 
         this.app = Javalin.create(javalin -> {
             javalin.http.maxRequestSize = 16_384L;
-            javalin.useVirtualThreads = true;
-            javalin.registerPlugin(ssl);
+            javalin.concurrency.useVirtualThreads = true;
+            javalin.jetty.addConnector((server, http) -> {
+                SslContextFactory.Server tls = new SslContextFactory.Server();
+                tls.setKeyStore(identity);
+                tls.setKeyStorePassword("changeit");
+                HttpConfiguration https = new HttpConfiguration(http);
+                https.addCustomizer(new SecureRequestCustomizer());
+                ServerConnector connector = new ServerConnector(server,
+                        new SslConnectionFactory(tls, "http/1.1"),
+                        new HttpConnectionFactory(https));
+                connector.setHost(BIND_ADDRESS);
+                connector.setPort(web.port());
+                return connector;
+            });
+            javalin.routes.before(this::authenticate);
+            javalin.routes.after(this::securityHeaders);
+            javalin.routes.after(this::auditRequest);
+            javalin.routes.get("/", this::home);
+            javalin.routes.post("/control", this::formControl);
+            javalin.routes.get("/health", this::health);
+            javalin.routes.get("/health/{ac}", this::healthOne);
+            javalin.routes.exception(IllegalArgumentException.class, (error, ctx) -> {
+                auditAction(ctx, "request rejected: " + error.getMessage());
+                ctx.status(400).contentType("text/plain; charset=utf-8").result(error.getMessage() + "\n");
+            });
+            javalin.routes.exception(Exception.class, (error, ctx) -> {
+                if (error instanceof UnauthorizedResponse unauthorized) throw unauthorized;
+                LOG.log(Level.WARNING, "web request failed", error);
+                auditAction(ctx, "request failed with internal error");
+                ctx.status(500).result("Internal error\n");
+            });
         });
-        app.before(this::authenticate);
-        app.after(this::securityHeaders);
-        app.after(this::auditRequest);
-        app.get("/", this::home);
-        app.post("/control", this::formControl);
-        app.get("/health", this::health);
-        app.get("/health/{ac}", this::healthOne);
-        app.exception(IllegalArgumentException.class, (error, ctx) -> {
-            auditAction(ctx, "request rejected: " + error.getMessage());
-            ctx.status(400).contentType("text/plain; charset=utf-8").result(error.getMessage() + "\n");
-        });
-        app.exception(Exception.class, (error, ctx) -> {
-            if (error instanceof UnauthorizedResponse unauthorized) throw unauthorized;
-            LOG.log(Level.WARNING, "web request failed", error);
-            auditAction(ctx, "request failed with internal error");
-            ctx.status(500).result("Internal error\n");
-        });
+    }
+
+    private static KeyStore identityStore(Config.Web web) throws IOException {
+        try (InputStream certificates = java.nio.file.Files.newInputStream(web.certificatePath())) {
+            Certificate[] chain = CertificateFactory.getInstance("X.509")
+                    .generateCertificates(certificates).toArray(Certificate[]::new);
+            String pem = java.nio.file.Files.readString(web.privateKeyPath(), StandardCharsets.US_ASCII);
+            boolean encrypted = pem.contains("-----BEGIN ENCRYPTED PRIVATE KEY-----");
+            String begin = encrypted ? "-----BEGIN ENCRYPTED PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
+            String end = encrypted ? "-----END ENCRYPTED PRIVATE KEY-----" : "-----END PRIVATE KEY-----";
+            if (!pem.contains(begin)) throw new IOException("TLS private key must use PKCS#8 PEM format");
+            byte[] encoded = Base64.getMimeDecoder().decode(pem.replace(begin, "").replace(end, ""));
+            PKCS8EncodedKeySpec keySpec;
+            if (encrypted) {
+                EncryptedPrivateKeyInfo encryptedKey = new EncryptedPrivateKeyInfo(encoded);
+                SecretKeyFactory keys = SecretKeyFactory.getInstance(encryptedKey.getAlgName());
+                Cipher cipher = Cipher.getInstance(encryptedKey.getAlgName());
+                cipher.init(Cipher.DECRYPT_MODE,
+                        keys.generateSecret(new PBEKeySpec(web.privateKeyPassword().toCharArray())),
+                        encryptedKey.getAlgParameters());
+                keySpec = encryptedKey.getKeySpec(cipher);
+            } else {
+                keySpec = new PKCS8EncodedKeySpec(encoded);
+            }
+            PrivateKey key = null;
+            for (String algorithm : List.of("RSA", "EC", "Ed25519")) {
+                try {
+                    key = KeyFactory.getInstance(algorithm).generatePrivate(keySpec);
+                    break;
+                } catch (java.security.GeneralSecurityException ignored) {
+                    // Try the next common certificate-key algorithm.
+                }
+            }
+            if (key == null) throw new IOException("Unsupported TLS private-key algorithm");
+            KeyStore store = KeyStore.getInstance("PKCS12");
+            store.load(null, null);
+            store.setKeyEntry("server", key, "changeit".toCharArray(), chain);
+            return store;
+        } catch (java.security.GeneralSecurityException error) {
+            throw new IOException("Unable to load TLS identity", error);
+        }
     }
 
     public void start() {

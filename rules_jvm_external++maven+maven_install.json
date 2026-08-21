@@ -8,8 +8,7 @@
     "com.google.guava:guava": 1943808618,
     "com.google.j2objc:j2objc-annotations": 2003271689,
     "com.samskivert:jmustache": 1576517522,
-    "io.javalin.community.ssl:ssl-plugin": -1038466291,
-    "io.javalin:javalin": -91570705,
+    "io.javalin:javalin": -1117547602,
     "org.junit.platform:junit-platform-console-standalone": 85321769,
     "org.slf4j:slf4j-jdk14": 1467713585,
     "repositories": 514854214
@@ -24,44 +23,45 @@
     "com.google.guava:listenablefuture": 1588902908,
     "com.google.j2objc:j2objc-annotations": -596695707,
     "com.samskivert:jmustache": 1720805303,
-    "io.github.hakky54:sslcontext-kickstart": 376977501,
-    "io.github.hakky54:sslcontext-kickstart-for-jetty": -106521797,
-    "io.github.hakky54:sslcontext-kickstart-for-pem": -1674487346,
-    "io.javalin.community.ssl:ssl-plugin": -233047545,
-    "io.javalin:javalin": -1813119916,
-    "org.bouncycastle:bcpkix-jdk18on": -1851273750,
-    "org.bouncycastle:bcprov-jdk18on": -1964939153,
-    "org.bouncycastle:bcutil-jdk18on": -1287788851,
+    "io.javalin:javalin": -84694976,
+    "jakarta.annotation:jakarta.annotation-api": -1453679667,
+    "jakarta.enterprise:jakarta.enterprise.cdi-api": 2110684504,
+    "jakarta.enterprise:jakarta.enterprise.lang-model": 1854920157,
+    "jakarta.inject:jakarta.inject-api": -1569563684,
+    "jakarta.interceptor:jakarta.interceptor-api": -1770524149,
+    "jakarta.servlet:jakarta.servlet-api": 1262718201,
+    "jakarta.transaction:jakarta.transaction-api": -319044894,
     "org.checkerframework:checker-qual": -2018582244,
-    "org.conscrypt:conscrypt-openjdk-uber": -754199722,
-    "org.eclipse.jetty.http2:http2-common": -1330903195,
-    "org.eclipse.jetty.http2:http2-hpack": 628200909,
-    "org.eclipse.jetty.http2:http2-server": -557364790,
-    "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api": 99309379,
-    "org.eclipse.jetty.websocket:websocket-core-common": 1319307150,
-    "org.eclipse.jetty.websocket:websocket-core-server": -1992581905,
-    "org.eclipse.jetty.websocket:websocket-jetty-api": -120293159,
-    "org.eclipse.jetty.websocket:websocket-jetty-common": -1391724176,
-    "org.eclipse.jetty.websocket:websocket-jetty-server": 2069988399,
-    "org.eclipse.jetty.websocket:websocket-servlet": -726881754,
-    "org.eclipse.jetty:jetty-alpn-conscrypt-server": -1481324166,
-    "org.eclipse.jetty:jetty-alpn-java-server": 1266258130,
-    "org.eclipse.jetty:jetty-alpn-server": 182639339,
-    "org.eclipse.jetty:jetty-http": -1086456434,
-    "org.eclipse.jetty:jetty-io": -1920738164,
-    "org.eclipse.jetty:jetty-security": 664082588,
-    "org.eclipse.jetty:jetty-server": 1853985740,
-    "org.eclipse.jetty:jetty-servlet": -1102702306,
-    "org.eclipse.jetty:jetty-util": -907896550,
-    "org.eclipse.jetty:jetty-webapp": 523435592,
-    "org.eclipse.jetty:jetty-xml": 1043943845,
-    "org.jetbrains.kotlin:kotlin-stdlib": 962573571,
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk7": -415207479,
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk8": -1325211957,
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server": -196767398,
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet": 1183571523,
+    "org.eclipse.jetty.ee10:jetty-ee10-annotations": 11674524,
+    "org.eclipse.jetty.ee10:jetty-ee10-plus": -1708150557,
+    "org.eclipse.jetty.ee10:jetty-ee10-servlet": -1632945071,
+    "org.eclipse.jetty.ee10:jetty-ee10-webapp": -1798096231,
+    "org.eclipse.jetty.ee:jetty-ee-webapp": -593665383,
+    "org.eclipse.jetty.websocket:jetty-websocket-core-common": -871457395,
+    "org.eclipse.jetty.websocket:jetty-websocket-core-server": -440273218,
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-api": 1306227844,
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-common": 1114964778,
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-server": -1883200714,
+    "org.eclipse.jetty:jetty-annotations": -862032714,
+    "org.eclipse.jetty:jetty-http": 1445611966,
+    "org.eclipse.jetty:jetty-io": 1565417971,
+    "org.eclipse.jetty:jetty-jndi": 1190462798,
+    "org.eclipse.jetty:jetty-plus": 1374137475,
+    "org.eclipse.jetty:jetty-security": 1502354024,
+    "org.eclipse.jetty:jetty-server": -727716184,
+    "org.eclipse.jetty:jetty-session": -1969323304,
+    "org.eclipse.jetty:jetty-util": -2092547196,
+    "org.eclipse.jetty:jetty-xml": -347797016,
+    "org.jetbrains.kotlin:kotlin-stdlib": -584931152,
     "org.jetbrains:annotations": 116138949,
     "org.junit.platform:junit-platform-console-standalone": 672134369,
-    "org.slf4j:slf4j-api": -2086218377,
-    "org.slf4j:slf4j-jdk14": 969051038
+    "org.ow2.asm:asm": -413550555,
+    "org.ow2.asm:asm-commons": -105928069,
+    "org.ow2.asm:asm-tree": -165780341,
+    "org.slf4j:slf4j-api": -1249720338,
+    "org.slf4j:slf4j-jdk14": 1982160177
   },
   "conflict_resolution": {
     "com.google.errorprone:error_prone_annotations:2.5.1": "com.google.errorprone:error_prone_annotations:2.18.0"
@@ -121,53 +121,53 @@
       },
       "version": "1.16"
     },
-    "io.github.hakky54:sslcontext-kickstart": {
-      "shasums": {
-        "jar": "e128553cde3cd4c408e0c9100dd323f68cb4ba761c66e304159b807c932c8f8b"
-      },
-      "version": "9.1.0"
-    },
-    "io.github.hakky54:sslcontext-kickstart-for-jetty": {
-      "shasums": {
-        "jar": "ac3607820379f4da307d71927889625663d6daf11ecf5c6e8ac3c018f89d77e5"
-      },
-      "version": "9.1.0"
-    },
-    "io.github.hakky54:sslcontext-kickstart-for-pem": {
-      "shasums": {
-        "jar": "4bea5f708fafd86da3d46edbcb6e19470567b382900b6eb9912777e78c2e2778"
-      },
-      "version": "9.1.0"
-    },
-    "io.javalin.community.ssl:ssl-plugin": {
-      "shasums": {
-        "jar": "ffaeaa8d99640daa1b43ecd9c4251cdebda932db0c88fca869e06232f56be23e"
-      },
-      "version": "6.7.0"
-    },
     "io.javalin:javalin": {
       "shasums": {
-        "jar": "fffe9231d909eed9fbd7cb9a68f0eb5744b482b3ec60e7acf982c465852f6dd6"
+        "jar": "c27b5052e8fb259acd8fd1d9f598c8543e43fe4df9271c7697a9c832c9a66e17"
       },
-      "version": "6.7.0"
+      "version": "7.2.3"
     },
-    "org.bouncycastle:bcpkix-jdk18on": {
+    "jakarta.annotation:jakarta.annotation-api": {
       "shasums": {
-        "jar": "4f4ba6a92617ea19dc183f0fa5db492eee426fdde2a0a2d6c94777ffd1af6413"
+        "jar": "5f65fdaf424eee2b55e1d882ba9bb376be93fb09b37b808be6e22e8851c909fe"
       },
-      "version": "1.80"
+      "version": "2.1.1"
     },
-    "org.bouncycastle:bcprov-jdk18on": {
+    "jakarta.enterprise:jakarta.enterprise.cdi-api": {
       "shasums": {
-        "jar": "b33227f07dce264daf1aac2e798ef109a4901f31abedac53635746dd93679d3b"
+        "jar": "beaf74c4f2618189309e3f4a09c43effab633dd96aa1f6dc58a6ba7ee0042717"
       },
-      "version": "1.80.2"
+      "version": "4.0.1"
     },
-    "org.bouncycastle:bcutil-jdk18on": {
+    "jakarta.enterprise:jakarta.enterprise.lang-model": {
       "shasums": {
-        "jar": "bc78d32d7ffb141ee27e4fb77df04259d842c899e7e8eaf912f990d7253bd3b4"
+        "jar": "53acafe65b6ef0195fa1b8a0ef2650e5aa024c32cb4059c4df372d6b32089cd3"
       },
-      "version": "1.80.2"
+      "version": "4.0.1"
+    },
+    "jakarta.inject:jakarta.inject-api": {
+      "shasums": {
+        "jar": "f7dc98062fccf14126abb751b64fab12c312566e8cbdc8483598bffcea93af7c"
+      },
+      "version": "2.0.1"
+    },
+    "jakarta.interceptor:jakarta.interceptor-api": {
+      "shasums": {
+        "jar": "ef787d3f713fc6ff4f02cd4b0dbed08f93d8af3400c90cbb43fb4b5c0583710b"
+      },
+      "version": "2.1.0"
+    },
+    "jakarta.servlet:jakarta.servlet-api": {
+      "shasums": {
+        "jar": "c034eb1afb158987dbb53a5fea0cadf611c8dae8daadd59c44d9d5ab70129cef"
+      },
+      "version": "6.0.0"
+    },
+    "jakarta.transaction:jakarta.transaction-api": {
+      "shasums": {
+        "jar": "50c0a7c760c13ae6c042acf182b28f0047413db95b4636fb8879bcffab5ba875"
+      },
+      "version": "2.0.1"
     },
     "org.checkerframework:checker-qual": {
       "shasums": {
@@ -175,155 +175,143 @@
       },
       "version": "3.33.0"
     },
-    "org.conscrypt:conscrypt-openjdk-uber": {
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server": {
       "shasums": {
-        "jar": "eaf537d98e033d0f0451cd1b8cc74e02d7b55ec882da63c88060d806ba89c348"
+        "jar": "bce3641addd34a0d9a3ce8080f31f3b7f45b2bbdf3e7d5655ccd5f4d529c7816"
       },
-      "version": "2.5.2"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.http2:http2-common": {
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet": {
       "shasums": {
-        "jar": "a93800ff9f32ae97744cdb8b6a6536dfa51bd28c81b08b5285f7db7683d237f0"
+        "jar": "83a58b4ee3bf6d0284c50304725cf93b694a67b1b1cc139af72500296dbf7359"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.http2:http2-hpack": {
+    "org.eclipse.jetty.ee10:jetty-ee10-annotations": {
       "shasums": {
-        "jar": "8d4a442ca90687e8907ddd917a624ec7c979d171e7a50d5f3cda0a22676d6d91"
+        "jar": "c45ba9ff724845ef5848f86cf164c87824d4be18095216b9cba66a94a72b83b6"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.http2:http2-server": {
+    "org.eclipse.jetty.ee10:jetty-ee10-plus": {
       "shasums": {
-        "jar": "fdeaf02b38d3a7f14575c1c47a21b06f3786a5c64e4d3d87c215cbc587885402"
+        "jar": "80d050384ef31c921e0fbeeded3c70fc8d35a29b7951511a9ccfaeb06b5e29c7"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api": {
+    "org.eclipse.jetty.ee10:jetty-ee10-servlet": {
       "shasums": {
-        "jar": "efb20997729f32bfa6c8a8319037c353f7ad460d5d49f336bf232998ea2358db"
+        "jar": "021375ea80d84b5f9d46260916fc0450dc4fae5a95ce80f8289e87a0db07de47"
       },
-      "version": "5.0.2"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-core-common": {
+    "org.eclipse.jetty.ee10:jetty-ee10-webapp": {
       "shasums": {
-        "jar": "7c2ae37b08bf9b734c0805aaa135897cfacbb4930755b094247d03620d3b9010"
+        "jar": "84de1014bb79f957f0fc66d3db9b2bc7eec19f01c8ace4e250b4707af0eed0f3"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-core-server": {
+    "org.eclipse.jetty.ee:jetty-ee-webapp": {
       "shasums": {
-        "jar": "411dfe5f345301ba3597a6dfc5c5c2fb1b0f4d37f347c915e77323ff1625039b"
+        "jar": "f70d9b30fdfd970e8bbc462b9d6b4cb85f850428d8640529fcc1f1912b2941b4"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-jetty-api": {
+    "org.eclipse.jetty.websocket:jetty-websocket-core-common": {
       "shasums": {
-        "jar": "11524d9fa9012e4e8499bd65944fe05fb44e366a9fca7643b63efa75550b8796"
+        "jar": "a1ef0c79a4b8b9e4ce969e70d8de9fbed4776625863bdbd5eb5f69fb70208399"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-jetty-common": {
+    "org.eclipse.jetty.websocket:jetty-websocket-core-server": {
       "shasums": {
-        "jar": "960d446bbbf71c7b56c6ca69e85cbff834ae11a3d7158b8594ed8e7efc936fe6"
+        "jar": "d91becae70e7b15e6200f40d02239d8315f8b26c90d4ab38348fcdad41c0ebf5"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-jetty-server": {
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-api": {
       "shasums": {
-        "jar": "4ac5eae9f626541d5fb0732173f7628dda9202081222f7ad2094cb7d4bddf620"
+        "jar": "887090638bf758dce9268478a3ccf168929de52dcdecdddb4eaff62263cbd961"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty.websocket:websocket-servlet": {
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-common": {
       "shasums": {
-        "jar": "932fa73a4e4de8dbfcf81357ebdd4c665d3c649cc9769125c1f1589d3c8d72cc"
+        "jar": "933d05b566effad97f84b5d986be810a2928685c875d7fb90f301163f24d2718"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty:jetty-alpn-conscrypt-server": {
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-server": {
       "shasums": {
-        "jar": "071014d42a27343d755148f6a585eaf7c345e392a44f32bf4b5b284ae4b4f71f"
+        "jar": "0b189ffab87b02a4da1187dc4022410c5f235b5a1a7ccfeea3cc4846a8e80664"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty:jetty-alpn-java-server": {
+    "org.eclipse.jetty:jetty-annotations": {
       "shasums": {
-        "jar": "9cd32323f34ff3b7857b1dafe1595eddb00b53d5eba55ef19d1dd0fc78a58dca"
+        "jar": "ce51d231435cdd774336abcb44a7817195fd12487ed213327e8d43db172af467"
       },
-      "version": "11.0.25"
-    },
-    "org.eclipse.jetty:jetty-alpn-server": {
-      "shasums": {
-        "jar": "de00f8244f6850ad302e8dc445b261e99b41832925e3b3a9b64ccdeb180e4e0b"
-      },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-http": {
       "shasums": {
-        "jar": "7ae3f8055557e6cea13980eaa37eaf9d546cd57a2d358aa7cb2e5de7c4946169"
+        "jar": "5476e16ef7e28883dba3669ee06491021e4a9aeba9a76f901a3f5c2bb5252a3e"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-io": {
       "shasums": {
-        "jar": "6d5859f4ce88156c86aac0fa62d27a768d8f100aa6da5c13a82ec3c9ea16a349"
+        "jar": "a809a6a534adccfaa08bca94aa54328e3ac858973ccddbda770f7e9e0f5099fc"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
+    },
+    "org.eclipse.jetty:jetty-jndi": {
+      "shasums": {
+        "jar": "a701368f9810433103836f0f2c0c0f6a2ca49f951d25d155e4e507821cb54b43"
+      },
+      "version": "12.1.12"
+    },
+    "org.eclipse.jetty:jetty-plus": {
+      "shasums": {
+        "jar": "0e29a87abf5b651f77e5c3e7c726f0ecef30a9bc57a5e0aa5aa3f784cfc0a7bd"
+      },
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-security": {
       "shasums": {
-        "jar": "861a0be80a4dfa7935a89113d4ac4ed76505f079b22c9e2f1a84017908bbcd57"
+        "jar": "fcc0206c1ac66b632ef29a59ccf76c3f3737a62ef54694b1d111eeb2e6efe804"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-server": {
       "shasums": {
-        "jar": "710652a7dccc0590cd0af2798dd3c4c93a777e7fb591d89d7cf02a4839bf0dd8"
+        "jar": "9ba04bb8d011444a10873a51b1cb8297c04f70db55c8a8d9efcc3a9b97896787"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
-    "org.eclipse.jetty:jetty-servlet": {
+    "org.eclipse.jetty:jetty-session": {
       "shasums": {
-        "jar": "641eb7725c8aa27ff4f35e71b826f6c3fff5ce745d6997e520eafb887e3623ec"
+        "jar": "73aea4cdd91f2027da1a09cd5953b661625017971d53d8e1ff342f8547752b06"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-util": {
       "shasums": {
-        "jar": "801ce0baaaf9a269fade7172dadd290c707f3bcdaf22b4292c323f6548b05959"
+        "jar": "f6fbfa61cfcca032ff82ad8ff3b66a14374047f15486521dbc89a6c0df19ccf2"
       },
-      "version": "11.0.25"
-    },
-    "org.eclipse.jetty:jetty-webapp": {
-      "shasums": {
-        "jar": "1982c6fb76403fc2a808a6ae14a56b9e1c59ffcf5333f46b8cb7b0c664eb35b3"
-      },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.eclipse.jetty:jetty-xml": {
       "shasums": {
-        "jar": "5d57ca091a0c58fc6b1fbe10f86e76bd14f854e1ac666f67422b30ae291f9fed"
+        "jar": "1c7b6320e3ad4ccca861ecfd1347f10ac6130ca2c2eb788a6b5dff3ab0c0f532"
       },
-      "version": "11.0.25"
+      "version": "12.1.12"
     },
     "org.jetbrains.kotlin:kotlin-stdlib": {
       "shasums": {
-        "jar": "f9cdcdbff1f5de85380ae526977e683726c2aa42db1ed6e6e50ae89e496e95fd"
+        "jar": "8836ccffd3585fadda9901244b20d42901d2f3cd581058d8434e2ffabcf3a3e7"
       },
-      "version": "1.9.25"
-    },
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk7": {
-      "shasums": {
-        "jar": "fb5373dd761b4e93e3f538c5e853bba38a71143a181536e8f193ed6e4eddb3b8"
-      },
-      "version": "1.9.25"
-    },
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk8": {
-      "shasums": {
-        "jar": "f94fdf78390ce9be30383bf039c5a935caea33b11f037fc7f86bbcee19287e5a"
-      },
-      "version": "1.9.25"
+      "version": "2.2.20"
     },
     "org.jetbrains:annotations": {
       "shasums": {
@@ -337,11 +325,29 @@
       },
       "version": "1.12.2"
     },
+    "org.ow2.asm:asm": {
+      "shasums": {
+        "jar": "ed825d10ab1399c8c0cb669e688cf0c8c82629b4c8399b58352b68e92ca10fcb"
+      },
+      "version": "9.10.1"
+    },
+    "org.ow2.asm:asm-commons": {
+      "shasums": {
+        "jar": "6d0abefb7cbf972ea16edb37ec14835372505063a45f976ab7ea889ed9497895"
+      },
+      "version": "9.10.1"
+    },
+    "org.ow2.asm:asm-tree": {
+      "shasums": {
+        "jar": "3dfb0d5b6a106cd40b5b250e39935fbf2f927f4477546a5369a3ac609cf0506b"
+      },
+      "version": "9.10.1"
+    },
     "org.slf4j:slf4j-api": {
       "shasums": {
-        "jar": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832"
+        "jar": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55"
       },
-      "version": "2.0.17"
+      "version": "2.0.18"
     },
     "org.slf4j:slf4j-jdk14": {
       "shasums": {
@@ -359,92 +365,92 @@
       "com.google.j2objc:j2objc-annotations",
       "org.checkerframework:checker-qual"
     ],
-    "io.github.hakky54:sslcontext-kickstart": [
-      "org.slf4j:slf4j-api"
-    ],
-    "io.github.hakky54:sslcontext-kickstart-for-jetty": [
-      "io.github.hakky54:sslcontext-kickstart"
-    ],
-    "io.github.hakky54:sslcontext-kickstart-for-pem": [
-      "io.github.hakky54:sslcontext-kickstart",
-      "org.bouncycastle:bcpkix-jdk18on"
-    ],
-    "io.javalin.community.ssl:ssl-plugin": [
-      "io.github.hakky54:sslcontext-kickstart",
-      "io.github.hakky54:sslcontext-kickstart-for-jetty",
-      "io.github.hakky54:sslcontext-kickstart-for-pem",
-      "org.eclipse.jetty.http2:http2-server",
-      "org.eclipse.jetty:jetty-alpn-conscrypt-server",
-      "org.eclipse.jetty:jetty-alpn-java-server",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    ],
     "io.javalin:javalin": [
-      "org.eclipse.jetty.websocket:websocket-jetty-server",
+      "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server",
+      "org.eclipse.jetty.ee10:jetty-ee10-servlet",
       "org.eclipse.jetty:jetty-server",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+      "org.jetbrains.kotlin:kotlin-stdlib",
       "org.slf4j:slf4j-api"
     ],
-    "org.bouncycastle:bcpkix-jdk18on": [
-      "org.bouncycastle:bcutil-jdk18on"
+    "jakarta.interceptor:jakarta.interceptor-api": [
+      "jakarta.annotation:jakarta.annotation-api"
     ],
-    "org.bouncycastle:bcutil-jdk18on": [
-      "org.bouncycastle:bcprov-jdk18on"
-    ],
-    "org.eclipse.jetty.http2:http2-common": [
-      "org.eclipse.jetty.http2:http2-hpack",
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server": [
+      "jakarta.servlet:jakarta.servlet-api",
+      "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet",
+      "org.eclipse.jetty.ee10:jetty-ee10-annotations",
+      "org.eclipse.jetty.ee10:jetty-ee10-servlet",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-api",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-common",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-server",
       "org.slf4j:slf4j-api"
     ],
-    "org.eclipse.jetty.http2:http2-hpack": [
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet": [
+      "org.eclipse.jetty.ee10:jetty-ee10-servlet",
+      "org.eclipse.jetty.websocket:jetty-websocket-core-server",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.ee10:jetty-ee10-annotations": [
+      "jakarta.annotation:jakarta.annotation-api",
+      "jakarta.servlet:jakarta.servlet-api",
+      "org.eclipse.jetty.ee10:jetty-ee10-plus",
+      "org.eclipse.jetty.ee10:jetty-ee10-webapp",
+      "org.eclipse.jetty:jetty-annotations",
+      "org.ow2.asm:asm",
+      "org.ow2.asm:asm-commons",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.ee10:jetty-ee10-plus": [
+      "jakarta.enterprise:jakarta.enterprise.cdi-api",
+      "jakarta.enterprise:jakarta.enterprise.lang-model",
+      "jakarta.inject:jakarta.inject-api",
+      "jakarta.interceptor:jakarta.interceptor-api",
+      "jakarta.transaction:jakarta.transaction-api",
+      "org.eclipse.jetty.ee10:jetty-ee10-webapp",
+      "org.eclipse.jetty:jetty-jndi",
+      "org.eclipse.jetty:jetty-plus",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.ee10:jetty-ee10-servlet": [
+      "jakarta.servlet:jakarta.servlet-api",
+      "org.eclipse.jetty:jetty-security",
+      "org.eclipse.jetty:jetty-server",
+      "org.eclipse.jetty:jetty-session",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.ee10:jetty-ee10-webapp": [
+      "org.eclipse.jetty.ee10:jetty-ee10-servlet",
+      "org.eclipse.jetty.ee:jetty-ee-webapp",
+      "org.eclipse.jetty:jetty-session",
+      "org.eclipse.jetty:jetty-xml",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.ee:jetty-ee-webapp": [
+      "org.eclipse.jetty:jetty-server",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty.websocket:jetty-websocket-core-common": [
       "org.eclipse.jetty:jetty-http",
       "org.eclipse.jetty:jetty-io",
-      "org.eclipse.jetty:jetty-util",
       "org.slf4j:slf4j-api"
     ],
-    "org.eclipse.jetty.http2:http2-server": [
-      "org.eclipse.jetty.http2:http2-common",
-      "org.eclipse.jetty:jetty-server",
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty.websocket:websocket-core-common": [
-      "org.eclipse.jetty:jetty-http",
-      "org.eclipse.jetty:jetty-io",
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty.websocket:websocket-core-server": [
-      "org.eclipse.jetty.websocket:websocket-core-common",
+    "org.eclipse.jetty.websocket:jetty-websocket-core-server": [
+      "org.eclipse.jetty.websocket:jetty-websocket-core-common",
       "org.eclipse.jetty:jetty-server"
     ],
-    "org.eclipse.jetty.websocket:websocket-jetty-common": [
-      "org.eclipse.jetty.websocket:websocket-core-common",
-      "org.eclipse.jetty.websocket:websocket-jetty-api"
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-common": [
+      "org.eclipse.jetty.websocket:jetty-websocket-core-common",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-api"
     ],
-    "org.eclipse.jetty.websocket:websocket-jetty-server": [
-      "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api",
-      "org.eclipse.jetty.websocket:websocket-jetty-api",
-      "org.eclipse.jetty.websocket:websocket-jetty-common",
-      "org.eclipse.jetty.websocket:websocket-servlet",
-      "org.eclipse.jetty:jetty-servlet",
-      "org.eclipse.jetty:jetty-webapp",
-      "org.slf4j:slf4j-api"
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-server": [
+      "org.eclipse.jetty.websocket:jetty-websocket-core-server",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-common",
+      "org.eclipse.jetty:jetty-server"
     ],
-    "org.eclipse.jetty.websocket:websocket-servlet": [
-      "org.eclipse.jetty.websocket:websocket-core-server",
-      "org.eclipse.jetty:jetty-servlet",
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty:jetty-alpn-conscrypt-server": [
-      "org.conscrypt:conscrypt-openjdk-uber",
-      "org.eclipse.jetty:jetty-alpn-server",
-      "org.eclipse.jetty:jetty-io",
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty:jetty-alpn-java-server": [
-      "org.eclipse.jetty:jetty-alpn-server",
-      "org.eclipse.jetty:jetty-io",
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty:jetty-alpn-server": [
+    "org.eclipse.jetty:jetty-annotations": [
       "org.eclipse.jetty:jetty-server",
+      "org.ow2.asm:asm",
+      "org.ow2.asm:asm-commons",
       "org.slf4j:slf4j-api"
     ],
     "org.eclipse.jetty:jetty-http": [
@@ -456,26 +462,29 @@
       "org.eclipse.jetty:jetty-util",
       "org.slf4j:slf4j-api"
     ],
+    "org.eclipse.jetty:jetty-jndi": [
+      "org.eclipse.jetty:jetty-util",
+      "org.slf4j:slf4j-api"
+    ],
+    "org.eclipse.jetty:jetty-plus": [
+      "org.eclipse.jetty:jetty-security",
+      "org.eclipse.jetty:jetty-util",
+      "org.slf4j:slf4j-api"
+    ],
     "org.eclipse.jetty:jetty-security": [
       "org.eclipse.jetty:jetty-server",
       "org.slf4j:slf4j-api"
     ],
     "org.eclipse.jetty:jetty-server": [
-      "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api",
       "org.eclipse.jetty:jetty-http",
       "org.eclipse.jetty:jetty-io",
       "org.slf4j:slf4j-api"
     ],
-    "org.eclipse.jetty:jetty-servlet": [
-      "org.eclipse.jetty:jetty-security",
+    "org.eclipse.jetty:jetty-session": [
+      "org.eclipse.jetty:jetty-server",
       "org.slf4j:slf4j-api"
     ],
     "org.eclipse.jetty:jetty-util": [
-      "org.slf4j:slf4j-api"
-    ],
-    "org.eclipse.jetty:jetty-webapp": [
-      "org.eclipse.jetty:jetty-servlet",
-      "org.eclipse.jetty:jetty-xml",
       "org.slf4j:slf4j-api"
     ],
     "org.eclipse.jetty:jetty-xml": [
@@ -485,12 +494,12 @@
     "org.jetbrains.kotlin:kotlin-stdlib": [
       "org.jetbrains:annotations"
     ],
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk7": [
-      "org.jetbrains.kotlin:kotlin-stdlib"
+    "org.ow2.asm:asm-commons": [
+      "org.ow2.asm:asm",
+      "org.ow2.asm:asm-tree"
     ],
-    "org.jetbrains.kotlin:kotlin-stdlib-jdk8": [
-      "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk7"
+    "org.ow2.asm:asm-tree": [
+      "org.ow2.asm:asm"
     ],
     "org.slf4j:slf4j-jdk14": [
       "org.slf4j:slf4j-api"
@@ -550,35 +559,6 @@
     "com.samskivert:jmustache": [
       "com.samskivert.mustache"
     ],
-    "io.github.hakky54:sslcontext-kickstart": [
-      "nl.altindag.ssl",
-      "nl.altindag.ssl.exception",
-      "nl.altindag.ssl.hostnameverifier",
-      "nl.altindag.ssl.keymanager",
-      "nl.altindag.ssl.model",
-      "nl.altindag.ssl.model.internal",
-      "nl.altindag.ssl.provider",
-      "nl.altindag.ssl.socket",
-      "nl.altindag.ssl.sslcontext",
-      "nl.altindag.ssl.sslengine",
-      "nl.altindag.ssl.sslparameters",
-      "nl.altindag.ssl.trustmanager",
-      "nl.altindag.ssl.trustmanager.trustoptions",
-      "nl.altindag.ssl.util",
-      "nl.altindag.ssl.util.internal"
-    ],
-    "io.github.hakky54:sslcontext-kickstart-for-jetty": [
-      "nl.altindag.ssl.jetty.util"
-    ],
-    "io.github.hakky54:sslcontext-kickstart-for-pem": [
-      "nl.altindag.ssl.pem.decryptor",
-      "nl.altindag.ssl.pem.exception",
-      "nl.altindag.ssl.pem.util"
-    ],
-    "io.javalin.community.ssl:ssl-plugin": [
-      "io.javalin.community.ssl",
-      "io.javalin.community.ssl.util"
-    ],
     "io.javalin:javalin": [
       "io.javalin",
       "io.javalin.apibuilder",
@@ -602,304 +582,49 @@
       "io.javalin.security",
       "io.javalin.util",
       "io.javalin.util.function",
+      "io.javalin.util.legacy",
       "io.javalin.validation",
       "io.javalin.vue",
       "io.javalin.websocket"
     ],
-    "org.bouncycastle:bcpkix-jdk18on": [
-      "org.bouncycastle.cert",
-      "org.bouncycastle.cert.bc",
-      "org.bouncycastle.cert.cmp",
-      "org.bouncycastle.cert.crmf",
-      "org.bouncycastle.cert.crmf.bc",
-      "org.bouncycastle.cert.crmf.jcajce",
-      "org.bouncycastle.cert.dane",
-      "org.bouncycastle.cert.dane.fetcher",
-      "org.bouncycastle.cert.jcajce",
-      "org.bouncycastle.cert.ocsp",
-      "org.bouncycastle.cert.ocsp.jcajce",
-      "org.bouncycastle.cert.path",
-      "org.bouncycastle.cert.path.validations",
-      "org.bouncycastle.cert.selector",
-      "org.bouncycastle.cert.selector.jcajce",
-      "org.bouncycastle.cmc",
-      "org.bouncycastle.cms",
-      "org.bouncycastle.cms.bc",
-      "org.bouncycastle.cms.jcajce",
-      "org.bouncycastle.dvcs",
-      "org.bouncycastle.eac",
-      "org.bouncycastle.eac.jcajce",
-      "org.bouncycastle.eac.operator",
-      "org.bouncycastle.eac.operator.jcajce",
-      "org.bouncycastle.est",
-      "org.bouncycastle.est.jcajce",
-      "org.bouncycastle.its",
-      "org.bouncycastle.its.bc",
-      "org.bouncycastle.its.jcajce",
-      "org.bouncycastle.its.operator",
-      "org.bouncycastle.mime",
-      "org.bouncycastle.mime.encoding",
-      "org.bouncycastle.mime.smime",
-      "org.bouncycastle.mozilla",
-      "org.bouncycastle.mozilla.jcajce",
-      "org.bouncycastle.openssl",
-      "org.bouncycastle.openssl.bc",
-      "org.bouncycastle.openssl.jcajce",
-      "org.bouncycastle.operator",
-      "org.bouncycastle.operator.bc",
-      "org.bouncycastle.operator.jcajce",
-      "org.bouncycastle.pkcs",
-      "org.bouncycastle.pkcs.bc",
-      "org.bouncycastle.pkcs.jcajce",
-      "org.bouncycastle.pkix",
-      "org.bouncycastle.pkix.jcajce",
-      "org.bouncycastle.pkix.util",
-      "org.bouncycastle.pkix.util.filter",
-      "org.bouncycastle.tsp",
-      "org.bouncycastle.tsp.cms",
-      "org.bouncycastle.tsp.ers",
-      "org.bouncycastle.voms"
+    "jakarta.annotation:jakarta.annotation-api": [
+      "jakarta.annotation",
+      "jakarta.annotation.security",
+      "jakarta.annotation.sql"
     ],
-    "org.bouncycastle:bcprov-jdk18on": [
-      "org.bouncycastle",
-      "org.bouncycastle.asn1",
-      "org.bouncycastle.asn1.anssi",
-      "org.bouncycastle.asn1.bc",
-      "org.bouncycastle.asn1.cryptopro",
-      "org.bouncycastle.asn1.gm",
-      "org.bouncycastle.asn1.nist",
-      "org.bouncycastle.asn1.ocsp",
-      "org.bouncycastle.asn1.pkcs",
-      "org.bouncycastle.asn1.sec",
-      "org.bouncycastle.asn1.teletrust",
-      "org.bouncycastle.asn1.ua",
-      "org.bouncycastle.asn1.util",
-      "org.bouncycastle.asn1.x500",
-      "org.bouncycastle.asn1.x500.style",
-      "org.bouncycastle.asn1.x509",
-      "org.bouncycastle.asn1.x509.qualified",
-      "org.bouncycastle.asn1.x509.sigi",
-      "org.bouncycastle.asn1.x9",
-      "org.bouncycastle.crypto",
-      "org.bouncycastle.crypto.agreement",
-      "org.bouncycastle.crypto.agreement.ecjpake",
-      "org.bouncycastle.crypto.agreement.jpake",
-      "org.bouncycastle.crypto.agreement.kdf",
-      "org.bouncycastle.crypto.agreement.srp",
-      "org.bouncycastle.crypto.commitments",
-      "org.bouncycastle.crypto.constraints",
-      "org.bouncycastle.crypto.digests",
-      "org.bouncycastle.crypto.ec",
-      "org.bouncycastle.crypto.encodings",
-      "org.bouncycastle.crypto.engines",
-      "org.bouncycastle.crypto.examples",
-      "org.bouncycastle.crypto.fpe",
-      "org.bouncycastle.crypto.generators",
-      "org.bouncycastle.crypto.hpke",
-      "org.bouncycastle.crypto.io",
-      "org.bouncycastle.crypto.kems",
-      "org.bouncycastle.crypto.macs",
-      "org.bouncycastle.crypto.modes",
-      "org.bouncycastle.crypto.modes.gcm",
-      "org.bouncycastle.crypto.modes.kgcm",
-      "org.bouncycastle.crypto.paddings",
-      "org.bouncycastle.crypto.params",
-      "org.bouncycastle.crypto.parsers",
-      "org.bouncycastle.crypto.prng",
-      "org.bouncycastle.crypto.prng.drbg",
-      "org.bouncycastle.crypto.signers",
-      "org.bouncycastle.crypto.threshold",
-      "org.bouncycastle.crypto.tls",
-      "org.bouncycastle.crypto.util",
-      "org.bouncycastle.i18n",
-      "org.bouncycastle.i18n.filter",
-      "org.bouncycastle.iana",
-      "org.bouncycastle.internal.asn1.bsi",
-      "org.bouncycastle.internal.asn1.cms",
-      "org.bouncycastle.internal.asn1.cryptlib",
-      "org.bouncycastle.internal.asn1.eac",
-      "org.bouncycastle.internal.asn1.edec",
-      "org.bouncycastle.internal.asn1.gnu",
-      "org.bouncycastle.internal.asn1.iana",
-      "org.bouncycastle.internal.asn1.isara",
-      "org.bouncycastle.internal.asn1.isismtt",
-      "org.bouncycastle.internal.asn1.iso",
-      "org.bouncycastle.internal.asn1.kisa",
-      "org.bouncycastle.internal.asn1.microsoft",
-      "org.bouncycastle.internal.asn1.misc",
-      "org.bouncycastle.internal.asn1.nsri",
-      "org.bouncycastle.internal.asn1.ntt",
-      "org.bouncycastle.internal.asn1.oiw",
-      "org.bouncycastle.internal.asn1.rosstandart",
-      "org.bouncycastle.jcajce",
-      "org.bouncycastle.jcajce.interfaces",
-      "org.bouncycastle.jcajce.io",
-      "org.bouncycastle.jcajce.provider.asymmetric",
-      "org.bouncycastle.jcajce.provider.asymmetric.compositesignatures",
-      "org.bouncycastle.jcajce.provider.asymmetric.dh",
-      "org.bouncycastle.jcajce.provider.asymmetric.dsa",
-      "org.bouncycastle.jcajce.provider.asymmetric.dstu",
-      "org.bouncycastle.jcajce.provider.asymmetric.ec",
-      "org.bouncycastle.jcajce.provider.asymmetric.ecgost",
-      "org.bouncycastle.jcajce.provider.asymmetric.ecgost12",
-      "org.bouncycastle.jcajce.provider.asymmetric.edec",
-      "org.bouncycastle.jcajce.provider.asymmetric.elgamal",
-      "org.bouncycastle.jcajce.provider.asymmetric.gost",
-      "org.bouncycastle.jcajce.provider.asymmetric.ies",
-      "org.bouncycastle.jcajce.provider.asymmetric.mldsa",
-      "org.bouncycastle.jcajce.provider.asymmetric.mlkem",
-      "org.bouncycastle.jcajce.provider.asymmetric.rsa",
-      "org.bouncycastle.jcajce.provider.asymmetric.slhdsa",
-      "org.bouncycastle.jcajce.provider.asymmetric.util",
-      "org.bouncycastle.jcajce.provider.asymmetric.x509",
-      "org.bouncycastle.jcajce.provider.config",
-      "org.bouncycastle.jcajce.provider.digest",
-      "org.bouncycastle.jcajce.provider.drbg",
-      "org.bouncycastle.jcajce.provider.keystore",
-      "org.bouncycastle.jcajce.provider.keystore.bc",
-      "org.bouncycastle.jcajce.provider.keystore.bcfks",
-      "org.bouncycastle.jcajce.provider.keystore.pkcs12",
-      "org.bouncycastle.jcajce.provider.keystore.util",
-      "org.bouncycastle.jcajce.provider.symmetric",
-      "org.bouncycastle.jcajce.provider.symmetric.util",
-      "org.bouncycastle.jcajce.provider.util",
-      "org.bouncycastle.jcajce.spec",
-      "org.bouncycastle.jcajce.util",
-      "org.bouncycastle.jce",
-      "org.bouncycastle.jce.exception",
-      "org.bouncycastle.jce.interfaces",
-      "org.bouncycastle.jce.netscape",
-      "org.bouncycastle.jce.provider",
-      "org.bouncycastle.jce.spec",
-      "org.bouncycastle.ldap",
-      "org.bouncycastle.math",
-      "org.bouncycastle.math.ec",
-      "org.bouncycastle.math.ec.custom.djb",
-      "org.bouncycastle.math.ec.custom.gm",
-      "org.bouncycastle.math.ec.custom.sec",
-      "org.bouncycastle.math.ec.endo",
-      "org.bouncycastle.math.ec.rfc7748",
-      "org.bouncycastle.math.ec.rfc8032",
-      "org.bouncycastle.math.ec.tools",
-      "org.bouncycastle.math.field",
-      "org.bouncycastle.math.raw",
-      "org.bouncycastle.pqc.asn1",
-      "org.bouncycastle.pqc.crypto",
-      "org.bouncycastle.pqc.crypto.bike",
-      "org.bouncycastle.pqc.crypto.cmce",
-      "org.bouncycastle.pqc.crypto.crystals.dilithium",
-      "org.bouncycastle.pqc.crypto.falcon",
-      "org.bouncycastle.pqc.crypto.frodo",
-      "org.bouncycastle.pqc.crypto.gemss",
-      "org.bouncycastle.pqc.crypto.hqc",
-      "org.bouncycastle.pqc.crypto.lms",
-      "org.bouncycastle.pqc.crypto.mldsa",
-      "org.bouncycastle.pqc.crypto.mlkem",
-      "org.bouncycastle.pqc.crypto.newhope",
-      "org.bouncycastle.pqc.crypto.ntru",
-      "org.bouncycastle.pqc.crypto.ntruprime",
-      "org.bouncycastle.pqc.crypto.picnic",
-      "org.bouncycastle.pqc.crypto.rainbow",
-      "org.bouncycastle.pqc.crypto.saber",
-      "org.bouncycastle.pqc.crypto.slhdsa",
-      "org.bouncycastle.pqc.crypto.sphincs",
-      "org.bouncycastle.pqc.crypto.sphincsplus",
-      "org.bouncycastle.pqc.crypto.util",
-      "org.bouncycastle.pqc.crypto.xmss",
-      "org.bouncycastle.pqc.crypto.xwing",
-      "org.bouncycastle.pqc.jcajce.interfaces",
-      "org.bouncycastle.pqc.jcajce.provider",
-      "org.bouncycastle.pqc.jcajce.provider.bike",
-      "org.bouncycastle.pqc.jcajce.provider.cmce",
-      "org.bouncycastle.pqc.jcajce.provider.dilithium",
-      "org.bouncycastle.pqc.jcajce.provider.falcon",
-      "org.bouncycastle.pqc.jcajce.provider.frodo",
-      "org.bouncycastle.pqc.jcajce.provider.gmss",
-      "org.bouncycastle.pqc.jcajce.provider.hqc",
-      "org.bouncycastle.pqc.jcajce.provider.kyber",
-      "org.bouncycastle.pqc.jcajce.provider.lms",
-      "org.bouncycastle.pqc.jcajce.provider.mceliece",
-      "org.bouncycastle.pqc.jcajce.provider.newhope",
-      "org.bouncycastle.pqc.jcajce.provider.ntru",
-      "org.bouncycastle.pqc.jcajce.provider.ntruprime",
-      "org.bouncycastle.pqc.jcajce.provider.picnic",
-      "org.bouncycastle.pqc.jcajce.provider.rainbow",
-      "org.bouncycastle.pqc.jcajce.provider.saber",
-      "org.bouncycastle.pqc.jcajce.provider.sphincs",
-      "org.bouncycastle.pqc.jcajce.provider.sphincsplus",
-      "org.bouncycastle.pqc.jcajce.provider.util",
-      "org.bouncycastle.pqc.jcajce.provider.xmss",
-      "org.bouncycastle.pqc.jcajce.spec",
-      "org.bouncycastle.pqc.legacy.crypto.gmss",
-      "org.bouncycastle.pqc.legacy.crypto.gmss.util",
-      "org.bouncycastle.pqc.legacy.crypto.mceliece",
-      "org.bouncycastle.pqc.legacy.crypto.ntru",
-      "org.bouncycastle.pqc.legacy.crypto.qtesla",
-      "org.bouncycastle.pqc.legacy.crypto.rainbow",
-      "org.bouncycastle.pqc.legacy.crypto.rainbow.util",
-      "org.bouncycastle.pqc.legacy.math.linearalgebra",
-      "org.bouncycastle.pqc.legacy.math.ntru.euclid",
-      "org.bouncycastle.pqc.legacy.math.ntru.polynomial",
-      "org.bouncycastle.pqc.legacy.math.ntru.util",
-      "org.bouncycastle.pqc.math.ntru",
-      "org.bouncycastle.pqc.math.ntru.parameters",
-      "org.bouncycastle.util",
-      "org.bouncycastle.util.encoders",
-      "org.bouncycastle.util.io",
-      "org.bouncycastle.util.io.pem",
-      "org.bouncycastle.util.test",
-      "org.bouncycastle.x509",
-      "org.bouncycastle.x509.extension",
-      "org.bouncycastle.x509.util"
+    "jakarta.enterprise:jakarta.enterprise.cdi-api": [
+      "jakarta.decorator",
+      "jakarta.enterprise.context",
+      "jakarta.enterprise.context.control",
+      "jakarta.enterprise.context.spi",
+      "jakarta.enterprise.event",
+      "jakarta.enterprise.inject",
+      "jakarta.enterprise.inject.build.compatible.spi",
+      "jakarta.enterprise.inject.literal",
+      "jakarta.enterprise.inject.se",
+      "jakarta.enterprise.inject.spi",
+      "jakarta.enterprise.inject.spi.configurator",
+      "jakarta.enterprise.util"
     ],
-    "org.bouncycastle:bcutil-jdk18on": [
-      "org.bouncycastle.asn1.bsi",
-      "org.bouncycastle.asn1.cmc",
-      "org.bouncycastle.asn1.cmp",
-      "org.bouncycastle.asn1.cms",
-      "org.bouncycastle.asn1.cms.ecc",
-      "org.bouncycastle.asn1.crmf",
-      "org.bouncycastle.asn1.cryptlib",
-      "org.bouncycastle.asn1.dvcs",
-      "org.bouncycastle.asn1.eac",
-      "org.bouncycastle.asn1.edec",
-      "org.bouncycastle.asn1.esf",
-      "org.bouncycastle.asn1.ess",
-      "org.bouncycastle.asn1.est",
-      "org.bouncycastle.asn1.gnu",
-      "org.bouncycastle.asn1.iana",
-      "org.bouncycastle.asn1.icao",
-      "org.bouncycastle.asn1.isara",
-      "org.bouncycastle.asn1.isismtt",
-      "org.bouncycastle.asn1.isismtt.ocsp",
-      "org.bouncycastle.asn1.isismtt.x509",
-      "org.bouncycastle.asn1.iso",
-      "org.bouncycastle.asn1.kisa",
-      "org.bouncycastle.asn1.microsoft",
-      "org.bouncycastle.asn1.misc",
-      "org.bouncycastle.asn1.mozilla",
-      "org.bouncycastle.asn1.nsri",
-      "org.bouncycastle.asn1.ntt",
-      "org.bouncycastle.asn1.oiw",
-      "org.bouncycastle.asn1.rosstandart",
-      "org.bouncycastle.asn1.smime",
-      "org.bouncycastle.asn1.tsp",
-      "org.bouncycastle.oer",
-      "org.bouncycastle.oer.its",
-      "org.bouncycastle.oer.its.etsi102941",
-      "org.bouncycastle.oer.its.etsi102941.basetypes",
-      "org.bouncycastle.oer.its.etsi103097",
-      "org.bouncycastle.oer.its.etsi103097.extension",
-      "org.bouncycastle.oer.its.ieee1609dot2",
-      "org.bouncycastle.oer.its.ieee1609dot2.basetypes",
-      "org.bouncycastle.oer.its.ieee1609dot2dot1",
-      "org.bouncycastle.oer.its.template.etsi102941",
-      "org.bouncycastle.oer.its.template.etsi102941.basetypes",
-      "org.bouncycastle.oer.its.template.etsi103097",
-      "org.bouncycastle.oer.its.template.etsi103097.extension",
-      "org.bouncycastle.oer.its.template.ieee1609dot2",
-      "org.bouncycastle.oer.its.template.ieee1609dot2.basetypes",
-      "org.bouncycastle.oer.its.template.ieee1609dot2dot1"
+    "jakarta.enterprise:jakarta.enterprise.lang-model": [
+      "jakarta.enterprise.lang.model",
+      "jakarta.enterprise.lang.model.declarations",
+      "jakarta.enterprise.lang.model.types"
+    ],
+    "jakarta.inject:jakarta.inject-api": [
+      "jakarta.inject"
+    ],
+    "jakarta.interceptor:jakarta.interceptor-api": [
+      "jakarta.interceptor"
+    ],
+    "jakarta.servlet:jakarta.servlet-api": [
+      "jakarta.servlet",
+      "jakarta.servlet.annotation",
+      "jakarta.servlet.descriptor",
+      "jakarta.servlet.http"
+    ],
+    "jakarta.transaction:jakarta.transaction-api": [
+      "jakarta.transaction"
     ],
     "org.checkerframework:checker-qual": [
       "org.checkerframework.checker.builder.qual",
@@ -933,102 +658,112 @@
       "org.checkerframework.dataflow.qual",
       "org.checkerframework.framework.qual"
     ],
-    "org.conscrypt:conscrypt-openjdk-uber": [
-      "org.conscrypt",
-      "org.conscrypt.ct",
-      "org.conscrypt.io"
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server": [
+      "org.eclipse.jetty.ee10.websocket.server",
+      "org.eclipse.jetty.ee10.websocket.server.config",
+      "org.eclipse.jetty.ee10.websocket.server.internal"
     ],
-    "org.eclipse.jetty.http2:http2-common": [
-      "org.eclipse.jetty.http2",
-      "org.eclipse.jetty.http2.api",
-      "org.eclipse.jetty.http2.api.server",
-      "org.eclipse.jetty.http2.frames",
-      "org.eclipse.jetty.http2.generator",
-      "org.eclipse.jetty.http2.parser"
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet": [
+      "org.eclipse.jetty.ee10.websocket.servlet"
     ],
-    "org.eclipse.jetty.http2:http2-hpack": [
-      "org.eclipse.jetty.http2.hpack"
+    "org.eclipse.jetty.ee10:jetty-ee10-annotations": [
+      "org.eclipse.jetty.ee10.annotations"
     ],
-    "org.eclipse.jetty.http2:http2-server": [
-      "org.eclipse.jetty.http2.server"
+    "org.eclipse.jetty.ee10:jetty-ee10-plus": [
+      "org.eclipse.jetty.ee10.plus.jndi",
+      "org.eclipse.jetty.ee10.plus.webapp"
     ],
-    "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api": [
-      "jakarta.servlet",
-      "jakarta.servlet.annotation",
-      "jakarta.servlet.descriptor",
-      "jakarta.servlet.http"
+    "org.eclipse.jetty.ee10:jetty-ee10-servlet": [
+      "org.eclipse.jetty.ee10.servlet",
+      "org.eclipse.jetty.ee10.servlet.internal",
+      "org.eclipse.jetty.ee10.servlet.jmx",
+      "org.eclipse.jetty.ee10.servlet.listener",
+      "org.eclipse.jetty.ee10.servlet.security",
+      "org.eclipse.jetty.ee10.servlet.security.authentication",
+      "org.eclipse.jetty.ee10.servlet.util"
     ],
-    "org.eclipse.jetty.websocket:websocket-core-common": [
+    "org.eclipse.jetty.ee10:jetty-ee10-webapp": [
+      "org.eclipse.jetty.ee10.webapp"
+    ],
+    "org.eclipse.jetty.ee:jetty-ee-webapp": [
+      "org.eclipse.jetty.ee.webapp"
+    ],
+    "org.eclipse.jetty.websocket:jetty-websocket-core-common": [
       "org.eclipse.jetty.websocket.core",
       "org.eclipse.jetty.websocket.core.exception",
       "org.eclipse.jetty.websocket.core.internal",
-      "org.eclipse.jetty.websocket.core.internal.messages",
-      "org.eclipse.jetty.websocket.core.internal.util"
+      "org.eclipse.jetty.websocket.core.messages",
+      "org.eclipse.jetty.websocket.core.util"
     ],
-    "org.eclipse.jetty.websocket:websocket-core-server": [
+    "org.eclipse.jetty.websocket:jetty-websocket-core-server": [
       "org.eclipse.jetty.websocket.core.server",
       "org.eclipse.jetty.websocket.core.server.internal"
     ],
-    "org.eclipse.jetty.websocket:websocket-jetty-api": [
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-api": [
       "org.eclipse.jetty.websocket.api",
       "org.eclipse.jetty.websocket.api.annotations",
       "org.eclipse.jetty.websocket.api.exceptions",
       "org.eclipse.jetty.websocket.api.util"
     ],
-    "org.eclipse.jetty.websocket:websocket-jetty-common": [
-      "org.eclipse.jetty.websocket.common"
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-common": [
+      "org.eclipse.jetty.websocket.common",
+      "org.eclipse.jetty.websocket.common.internal"
     ],
-    "org.eclipse.jetty.websocket:websocket-jetty-server": [
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-server": [
       "org.eclipse.jetty.websocket.server",
-      "org.eclipse.jetty.websocket.server.config",
       "org.eclipse.jetty.websocket.server.internal"
     ],
-    "org.eclipse.jetty.websocket:websocket-servlet": [
-      "org.eclipse.jetty.websocket.servlet"
-    ],
-    "org.eclipse.jetty:jetty-alpn-conscrypt-server": [
-      "org.eclipse.jetty.alpn.conscrypt.server"
-    ],
-    "org.eclipse.jetty:jetty-alpn-java-server": [
-      "org.eclipse.jetty.alpn.java.server"
-    ],
-    "org.eclipse.jetty:jetty-alpn-server": [
-      "org.eclipse.jetty.alpn.server"
+    "org.eclipse.jetty:jetty-annotations": [
+      "org.eclipse.jetty.annotations"
     ],
     "org.eclipse.jetty:jetty-http": [
       "org.eclipse.jetty.http",
       "org.eclipse.jetty.http.compression",
+      "org.eclipse.jetty.http.content",
       "org.eclipse.jetty.http.pathmap"
     ],
     "org.eclipse.jetty:jetty-io": [
       "org.eclipse.jetty.io",
+      "org.eclipse.jetty.io.content",
+      "org.eclipse.jetty.io.internal",
       "org.eclipse.jetty.io.jmx",
       "org.eclipse.jetty.io.ssl"
     ],
+    "org.eclipse.jetty:jetty-jndi": [
+      "org.eclipse.jetty.jndi",
+      "org.eclipse.jetty.jndi.java",
+      "org.eclipse.jetty.jndi.local"
+    ],
+    "org.eclipse.jetty:jetty-plus": [
+      "org.eclipse.jetty.plus.annotation",
+      "org.eclipse.jetty.plus.jndi",
+      "org.eclipse.jetty.plus.security"
+    ],
     "org.eclipse.jetty:jetty-security": [
       "org.eclipse.jetty.security",
-      "org.eclipse.jetty.security.authentication"
+      "org.eclipse.jetty.security.authentication",
+      "org.eclipse.jetty.security.internal",
+      "org.eclipse.jetty.security.jaas",
+      "org.eclipse.jetty.security.jaas.callback",
+      "org.eclipse.jetty.security.jaas.spi"
     ],
     "org.eclipse.jetty:jetty-server": [
       "org.eclipse.jetty.server",
       "org.eclipse.jetty.server.handler",
       "org.eclipse.jetty.server.handler.gzip",
       "org.eclipse.jetty.server.handler.jmx",
-      "org.eclipse.jetty.server.jmx",
-      "org.eclipse.jetty.server.resource",
-      "org.eclipse.jetty.server.session"
+      "org.eclipse.jetty.server.internal",
+      "org.eclipse.jetty.server.jmx"
     ],
-    "org.eclipse.jetty:jetty-servlet": [
-      "org.eclipse.jetty.servlet",
-      "org.eclipse.jetty.servlet.jmx",
-      "org.eclipse.jetty.servlet.listener"
+    "org.eclipse.jetty:jetty-session": [
+      "org.eclipse.jetty.session"
     ],
     "org.eclipse.jetty:jetty-util": [
       "org.eclipse.jetty.util",
       "org.eclipse.jetty.util.annotation",
       "org.eclipse.jetty.util.component",
       "org.eclipse.jetty.util.compression",
-      "org.eclipse.jetty.util.log",
+      "org.eclipse.jetty.util.jndi",
       "org.eclipse.jetty.util.preventers",
       "org.eclipse.jetty.util.resource",
       "org.eclipse.jetty.util.security",
@@ -1036,9 +771,6 @@
       "org.eclipse.jetty.util.statistic",
       "org.eclipse.jetty.util.thread",
       "org.eclipse.jetty.util.thread.strategy"
-    ],
-    "org.eclipse.jetty:jetty-webapp": [
-      "org.eclipse.jetty.webapp"
     ],
     "org.eclipse.jetty:jetty-xml": [
       "org.eclipse.jetty.xml"
@@ -1052,6 +784,8 @@
       "kotlin.collections.unsigned",
       "kotlin.comparisons",
       "kotlin.concurrent",
+      "kotlin.concurrent.atomics",
+      "kotlin.concurrent.internal",
       "kotlin.contracts",
       "kotlin.coroutines",
       "kotlin.coroutines.cancellation",
@@ -1086,7 +820,8 @@
       "kotlin.text",
       "kotlin.text.jdk8",
       "kotlin.time",
-      "kotlin.time.jdk8"
+      "kotlin.time.jdk8",
+      "kotlin.uuid"
     ],
     "org.jetbrains:annotations": [
       "org.intellij.lang.annotations",
@@ -1211,6 +946,16 @@
       "org.junit.vintage.engine.support",
       "org.opentest4j"
     ],
+    "org.ow2.asm:asm": [
+      "org.objectweb.asm",
+      "org.objectweb.asm.signature"
+    ],
+    "org.ow2.asm:asm-commons": [
+      "org.objectweb.asm.commons"
+    ],
+    "org.ow2.asm:asm-tree": [
+      "org.objectweb.asm.tree"
+    ],
     "org.slf4j:slf4j-api": [
       "org.slf4j",
       "org.slf4j.event",
@@ -1232,59 +977,84 @@
       "com.google.guava:listenablefuture",
       "com.google.j2objc:j2objc-annotations",
       "com.samskivert:jmustache",
-      "io.github.hakky54:sslcontext-kickstart",
-      "io.github.hakky54:sslcontext-kickstart-for-jetty",
-      "io.github.hakky54:sslcontext-kickstart-for-pem",
-      "io.javalin.community.ssl:ssl-plugin",
       "io.javalin:javalin",
-      "org.bouncycastle:bcpkix-jdk18on",
-      "org.bouncycastle:bcprov-jdk18on",
-      "org.bouncycastle:bcutil-jdk18on",
+      "jakarta.annotation:jakarta.annotation-api",
+      "jakarta.enterprise:jakarta.enterprise.cdi-api",
+      "jakarta.enterprise:jakarta.enterprise.lang-model",
+      "jakarta.inject:jakarta.inject-api",
+      "jakarta.interceptor:jakarta.interceptor-api",
+      "jakarta.servlet:jakarta.servlet-api",
+      "jakarta.transaction:jakarta.transaction-api",
       "org.checkerframework:checker-qual",
-      "org.conscrypt:conscrypt-openjdk-uber",
-      "org.eclipse.jetty.http2:http2-common",
-      "org.eclipse.jetty.http2:http2-hpack",
-      "org.eclipse.jetty.http2:http2-server",
-      "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api",
-      "org.eclipse.jetty.websocket:websocket-core-common",
-      "org.eclipse.jetty.websocket:websocket-core-server",
-      "org.eclipse.jetty.websocket:websocket-jetty-api",
-      "org.eclipse.jetty.websocket:websocket-jetty-common",
-      "org.eclipse.jetty.websocket:websocket-jetty-server",
-      "org.eclipse.jetty.websocket:websocket-servlet",
-      "org.eclipse.jetty:jetty-alpn-conscrypt-server",
-      "org.eclipse.jetty:jetty-alpn-java-server",
-      "org.eclipse.jetty:jetty-alpn-server",
+      "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server",
+      "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-servlet",
+      "org.eclipse.jetty.ee10:jetty-ee10-annotations",
+      "org.eclipse.jetty.ee10:jetty-ee10-plus",
+      "org.eclipse.jetty.ee10:jetty-ee10-servlet",
+      "org.eclipse.jetty.ee10:jetty-ee10-webapp",
+      "org.eclipse.jetty.ee:jetty-ee-webapp",
+      "org.eclipse.jetty.websocket:jetty-websocket-core-common",
+      "org.eclipse.jetty.websocket:jetty-websocket-core-server",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-api",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-common",
+      "org.eclipse.jetty.websocket:jetty-websocket-jetty-server",
+      "org.eclipse.jetty:jetty-annotations",
       "org.eclipse.jetty:jetty-http",
       "org.eclipse.jetty:jetty-io",
+      "org.eclipse.jetty:jetty-jndi",
+      "org.eclipse.jetty:jetty-plus",
       "org.eclipse.jetty:jetty-security",
       "org.eclipse.jetty:jetty-server",
-      "org.eclipse.jetty:jetty-servlet",
+      "org.eclipse.jetty:jetty-session",
       "org.eclipse.jetty:jetty-util",
-      "org.eclipse.jetty:jetty-webapp",
       "org.eclipse.jetty:jetty-xml",
       "org.jetbrains.kotlin:kotlin-stdlib",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
-      "org.jetbrains.kotlin:kotlin-stdlib-jdk8",
       "org.jetbrains:annotations",
       "org.junit.platform:junit-platform-console-standalone",
+      "org.ow2.asm:asm",
+      "org.ow2.asm:asm-commons",
+      "org.ow2.asm:asm-tree",
       "org.slf4j:slf4j-api",
       "org.slf4j:slf4j-jdk14"
     ]
   },
   "services": {
-    "org.bouncycastle:bcprov-jdk18on": {
-      "java.security.Provider": [
-        "org.bouncycastle.jce.provider.BouncyCastleProvider",
-        "org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider"
+    "org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server": {
+      "jakarta.servlet.ServletContainerInitializer": [
+        "org.eclipse.jetty.ee10.websocket.server.config.JettyWebSocketServletContainerInitializer"
+      ],
+      "org.eclipse.jetty.ee10.webapp.Configuration": [
+        "org.eclipse.jetty.ee10.websocket.server.config.JettyWebSocketConfiguration"
       ]
     },
-    "org.eclipse.jetty.http2:http2-hpack": {
-      "org.eclipse.jetty.http.HttpFieldPreEncoder": [
-        "org.eclipse.jetty.http2.hpack.HpackFieldPreEncoder"
+    "org.eclipse.jetty.ee10:jetty-ee10-annotations": {
+      "org.eclipse.jetty.ee10.webapp.Configuration": [
+        "org.eclipse.jetty.ee10.annotations.AnnotationConfiguration"
       ]
     },
-    "org.eclipse.jetty.websocket:websocket-core-common": {
+    "org.eclipse.jetty.ee10:jetty-ee10-plus": {
+      "org.eclipse.jetty.ee10.webapp.Configuration": [
+        "org.eclipse.jetty.ee10.plus.webapp.EnvConfiguration",
+        "org.eclipse.jetty.ee10.plus.webapp.PlusConfiguration"
+      ]
+    },
+    "org.eclipse.jetty.ee10:jetty-ee10-webapp": {
+      "org.eclipse.jetty.ee10.webapp.Configuration": [
+        "org.eclipse.jetty.ee10.webapp.FragmentConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JaasConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JaspiConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JettyWebXmlConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JmxConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JndiConfiguration",
+        "org.eclipse.jetty.ee10.webapp.JspConfiguration",
+        "org.eclipse.jetty.ee10.webapp.MetaInfConfiguration",
+        "org.eclipse.jetty.ee10.webapp.ServletsConfiguration",
+        "org.eclipse.jetty.ee10.webapp.WebAppConfiguration",
+        "org.eclipse.jetty.ee10.webapp.WebInfConfiguration",
+        "org.eclipse.jetty.ee10.webapp.WebXmlConfiguration"
+      ]
+    },
+    "org.eclipse.jetty.websocket:jetty-websocket-core-common": {
       "org.eclipse.jetty.websocket.core.Extension": [
         "org.eclipse.jetty.websocket.core.internal.FragmentExtension",
         "org.eclipse.jetty.websocket.core.internal.FrameCaptureExtension",
@@ -1293,48 +1063,15 @@
         "org.eclipse.jetty.websocket.core.internal.ValidationExtension"
       ]
     },
-    "org.eclipse.jetty.websocket:websocket-jetty-common": {
+    "org.eclipse.jetty.websocket:jetty-websocket-jetty-common": {
       "org.eclipse.jetty.websocket.api.ExtensionConfig$Parser": [
         "org.eclipse.jetty.websocket.common.ExtensionConfigParser"
       ]
     },
-    "org.eclipse.jetty.websocket:websocket-jetty-server": {
-      "jakarta.servlet.ServletContainerInitializer": [
-        "org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer"
-      ],
-      "org.eclipse.jetty.webapp.Configuration": [
-        "org.eclipse.jetty.websocket.server.config.JettyWebSocketConfiguration"
-      ]
-    },
-    "org.eclipse.jetty:jetty-alpn-conscrypt-server": {
-      "org.eclipse.jetty.io.ssl.ALPNProcessor$Server": [
-        "org.eclipse.jetty.alpn.conscrypt.server.ConscryptServerALPNProcessor"
-      ]
-    },
-    "org.eclipse.jetty:jetty-alpn-java-server": {
-      "org.eclipse.jetty.io.ssl.ALPNProcessor$Server": [
-        "org.eclipse.jetty.alpn.java.server.JDK9ServerALPNProcessor"
-      ]
-    },
     "org.eclipse.jetty:jetty-http": {
       "org.eclipse.jetty.http.HttpFieldPreEncoder": [
-        "org.eclipse.jetty.http.Http1FieldPreEncoder"
-      ]
-    },
-    "org.eclipse.jetty:jetty-webapp": {
-      "org.eclipse.jetty.webapp.Configuration": [
-        "org.eclipse.jetty.webapp.FragmentConfiguration",
-        "org.eclipse.jetty.webapp.JaasConfiguration",
-        "org.eclipse.jetty.webapp.JaspiConfiguration",
-        "org.eclipse.jetty.webapp.JettyWebXmlConfiguration",
-        "org.eclipse.jetty.webapp.JmxConfiguration",
-        "org.eclipse.jetty.webapp.JndiConfiguration",
-        "org.eclipse.jetty.webapp.JspConfiguration",
-        "org.eclipse.jetty.webapp.MetaInfConfiguration",
-        "org.eclipse.jetty.webapp.ServletsConfiguration",
-        "org.eclipse.jetty.webapp.WebAppConfiguration",
-        "org.eclipse.jetty.webapp.WebInfConfiguration",
-        "org.eclipse.jetty.webapp.WebXmlConfiguration"
+        "org.eclipse.jetty.http.Http10FieldPreEncoder",
+        "org.eclipse.jetty.http.Http11FieldPreEncoder"
       ]
     },
     "org.junit.platform:junit-platform-console-standalone": {

@@ -11,8 +11,9 @@ java_library(
     deps = [
         "@maven//:com_fazecast_jSerialComm",
         "@maven//:com_samskivert_jmustache",
-        "@maven//:io_javalin_community_ssl_ssl_plugin",
         "@maven//:io_javalin_javalin",
+        "@maven//:org_eclipse_jetty_jetty_server",
+        "@maven//:org_eclipse_jetty_jetty_util",
         "@maven//:org_slf4j_slf4j_jdk14",
     ],
 )
