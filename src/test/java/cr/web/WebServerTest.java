@@ -80,7 +80,7 @@ class WebServerTest {
             assertEquals("max-age=31536000",
                     page.headers().firstValue("Strict-Transport-Security").orElseThrow());
 
-            String form = "ac=bedroom&power=1&mode=1&fan=2&setpoint=25&turbo=0&quiet=1";
+            String form = "ac=bedroom&power=1&temperature=25&sleepTimer=90";
             HttpResponse<String> submitted = client.send(
                     request(URI.create("https://127.0.0.1:" + port + "/control"))
                             .header("Content-Type", "application/x-www-form-urlencoded")
@@ -91,8 +91,8 @@ class WebServerTest {
             assertEquals(303, submitted.statusCode());
             assertEquals("/?ac=bedroom&result=applied",
                     submitted.headers().firstValue("Location").orElseThrow());
-            assertArrayEquals(new int[]{1, 1, 2, 25, 0, 1}, bedroom.readHolding(0, 6));
-            assertEquals(21, living.readHolding(3, 1)[0]);
+            assertArrayEquals(new int[]{1, 25, 90}, bedroom.readHolding(0, 3));
+            assertEquals(24, living.readHolding(1, 1)[0]);
         } finally {
             logger.removeHandler(auditCapture);
         }
@@ -103,7 +103,7 @@ class WebServerTest {
                 && message.contains("method=GET") && message.contains("viewed air conditioner id=bedroom")));
         assertTrue(audit.stream().anyMatch(message -> message.contains("user=\"admin\"")
                 && message.contains("method=POST") && message.contains("updated air conditioner id=bedroom")
-                && message.contains("setpoint=25°C") && message.contains("quiet=1")));
+                && message.contains("temperature=25°C") && message.contains("sleepTimer=90 minutes")));
         assertTrue(audit.stream().noneMatch(message -> message.contains("test-password")
                 || message.contains("admin:wrong")));
     }

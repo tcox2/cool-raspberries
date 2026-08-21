@@ -7,29 +7,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RegisterBankTest {
     @Test
-    void rejectsControlsBeforeBaselineStateAndReservedWrites() {
+    void usesDefaultsInsteadOfTheFirstObservedState() {
         RegisterBank bank = new RegisterBank();
         assertThrows(IllegalStateException.class,
                 () -> bank.writeHolding(RegisterBank.POWER, new int[]{1}));
         bank.updateFromA3(TestFrames.sampleA3());
+        assertArrayEquals(new int[]{0, 24, 0}, bank.readHolding(0, 3));
+        int[] controls = bank.controlsSnapshot();
+        assertEquals(0, controls[RegisterBank.CONTROL_MODE]);
+        assertEquals(0, controls[RegisterBank.CONTROL_FAN]);
+        assertEquals(0, controls[RegisterBank.CONTROL_TURBO]);
         assertThrows(IllegalArgumentException.class,
-                () -> bank.writeHolding(14, new int[]{1}));
+                () -> bank.writeHolding(3, new int[]{1}));
     }
 
     @Test
     void validatesControlValuesAtomically() {
         RegisterBank bank = new RegisterBank();
         bank.updateFromA3(TestFrames.sampleA3());
-        bank.writeHolding(RegisterBank.SETPOINT_C, new int[]{22});
-        assertEquals(22, bank.readHolding(RegisterBank.SETPOINT_C, 1)[0]);
-        int modeBefore = bank.readHolding(RegisterBank.MODE, 1)[0];
-        int fanBefore = bank.readHolding(RegisterBank.FAN, 1)[0];
+        bank.writeHolding(RegisterBank.TEMPERATURE_C, new int[]{22});
+        assertEquals(22, bank.readHolding(RegisterBank.TEMPERATURE_C, 1)[0]);
 
         assertThrows(IllegalArgumentException.class,
-                () -> bank.writeHolding(RegisterBank.MODE, new int[]{9, 25}));
-        assertEquals(modeBefore, bank.readHolding(RegisterBank.MODE, 1)[0]);
-        assertEquals(fanBefore, bank.readHolding(RegisterBank.FAN, 1)[0]);
-        assertEquals(22, bank.readHolding(RegisterBank.SETPOINT_C, 1)[0]);
+                () -> bank.writeHolding(RegisterBank.POWER, new int[]{1, 40, 30}));
+        assertArrayEquals(new int[]{0, 22, 0}, bank.readHolding(0, 3));
     }
 
     @Test
