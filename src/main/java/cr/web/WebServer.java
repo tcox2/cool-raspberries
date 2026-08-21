@@ -13,23 +13,25 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
+import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-import java.security.spec.PKCS8EncodedKeySpec;
-import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import java.util.ArrayList;
-import java.io.ByteArrayOutputStream;
+import java.io.Reader;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -97,37 +99,7 @@ public final class WebServer implements AutoCloseable {
         try (InputStream certificates = java.nio.file.Files.newInputStream(web.certificatePath())) {
             Certificate[] chain = CertificateFactory.getInstance("X.509")
                     .generateCertificates(certificates).toArray(Certificate[]::new);
-            String pem = java.nio.file.Files.readString(web.privateKeyPath(), StandardCharsets.US_ASCII);
-            boolean encrypted = pem.contains("-----BEGIN ENCRYPTED PRIVATE KEY-----");
-            boolean rsaPkcs1 = pem.contains("-----BEGIN RSA PRIVATE KEY-----");
-            String begin = encrypted ? "-----BEGIN ENCRYPTED PRIVATE KEY-----"
-                    : rsaPkcs1 ? "-----BEGIN RSA PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
-            String end = encrypted ? "-----END ENCRYPTED PRIVATE KEY-----"
-                    : rsaPkcs1 ? "-----END RSA PRIVATE KEY-----" : "-----END PRIVATE KEY-----";
-            if (!pem.contains(begin)) throw new IOException("TLS private key must use PKCS#8 PEM format");
-            byte[] encoded = Base64.getMimeDecoder().decode(pem.replace(begin, "").replace(end, ""));
-            PKCS8EncodedKeySpec keySpec;
-            if (encrypted) {
-                EncryptedPrivateKeyInfo encryptedKey = new EncryptedPrivateKeyInfo(encoded);
-                SecretKeyFactory keys = SecretKeyFactory.getInstance(encryptedKey.getAlgName());
-                Cipher cipher = Cipher.getInstance(encryptedKey.getAlgName());
-                cipher.init(Cipher.DECRYPT_MODE,
-                        keys.generateSecret(new PBEKeySpec(web.privateKeyPassword().toCharArray())),
-                        encryptedKey.getAlgParameters());
-                keySpec = encryptedKey.getKeySpec(cipher);
-            } else {
-                keySpec = new PKCS8EncodedKeySpec(rsaPkcs1 ? wrapRsaPkcs1(encoded) : encoded);
-            }
-            PrivateKey key = null;
-            for (String algorithm : List.of("RSA", "EC", "Ed25519")) {
-                try {
-                    key = KeyFactory.getInstance(algorithm).generatePrivate(keySpec);
-                    break;
-                } catch (java.security.GeneralSecurityException ignored) {
-                    // Try the next common certificate-key algorithm.
-                }
-            }
-            if (key == null) throw new IOException("Unsupported TLS private-key algorithm");
+            PrivateKey key = readPrivateKey(web);
             KeyStore store = KeyStore.getInstance("PKCS12");
             store.load(null, null);
             store.setKeyEntry("server", key, "changeit".toCharArray(), chain);
@@ -137,35 +109,28 @@ public final class WebServer implements AutoCloseable {
         }
     }
 
-    private static byte[] wrapRsaPkcs1(byte[] pkcs1) throws IOException {
-        // PKCS#8 PrivateKeyInfo = SEQUENCE(version, rsaEncryption AlgorithmIdentifier,
-        // OCTET STRING containing the PKCS#1 RSAPrivateKey).
-        byte[] versionAndAlgorithm = {
-                0x02, 0x01, 0x00,
-                0x30, 0x0d, 0x06, 0x09, 0x2a, (byte) 0x86, 0x48, (byte) 0x86,
-                (byte) 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00
-        };
-        ByteArrayOutputStream body = new ByteArrayOutputStream();
-        body.write(versionAndAlgorithm);
-        body.write(0x04);
-        writeDerLength(body, pkcs1.length);
-        body.write(pkcs1);
-        ByteArrayOutputStream wrapped = new ByteArrayOutputStream();
-        wrapped.write(0x30);
-        writeDerLength(wrapped, body.size());
-        body.writeTo(wrapped);
-        return wrapped.toByteArray();
-    }
-
-    private static void writeDerLength(ByteArrayOutputStream output, int length) {
-        if (length < 128) {
-            output.write(length);
-            return;
+    private static PrivateKey readPrivateKey(Config.Web web) throws IOException {
+        try (Reader reader = java.nio.file.Files.newBufferedReader(web.privateKeyPath(), StandardCharsets.US_ASCII);
+             PEMParser parser = new PEMParser(reader)) {
+            Object value = parser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            if (value instanceof PrivateKeyInfo key) return converter.getPrivateKey(key);
+            if (value instanceof PEMKeyPair pair) return converter.getKeyPair(pair).getPrivate();
+            char[] password = web.privateKeyPassword().toCharArray();
+            if (value instanceof PKCS8EncryptedPrivateKeyInfo encrypted) {
+                return converter.getPrivateKey(encrypted.decryptPrivateKeyInfo(
+                        new JceOpenSSLPKCS8DecryptorProviderBuilder().build(password)));
+            }
+            if (value instanceof PEMEncryptedKeyPair encrypted) {
+                return converter.getKeyPair(encrypted.decryptKeyPair(
+                        new JcePEMDecryptorProviderBuilder().build(password))).getPrivate();
+            }
+            throw new IOException("Unsupported TLS private-key PEM format");
+        } catch (IOException error) {
+            throw error;
+        } catch (Exception error) {
+            throw new IOException("Unable to load TLS private key", error);
         }
-        int bytes = 0;
-        for (int value = length; value > 0; value >>>= 8) bytes++;
-        output.write(0x80 | bytes);
-        for (int shift = (bytes - 1) * 8; shift >= 0; shift -= 8) output.write(length >>> shift);
     }
 
     public void start() {

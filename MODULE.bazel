@@ -13,6 +13,8 @@ maven.install(
         "com.samskivert:jmustache:1.16",
         "io.javalin:javalin:7.2.3",
         "org.junit.platform:junit-platform-console-standalone:1.12.2",
+        "org.bouncycastle:bcpkix-jdk18on:1.85",
+        "org.bouncycastle:bcprov-jdk18on:1.85",
         "org.slf4j:slf4j-jdk14:2.0.17",
     ],
     known_contributing_modules = ["protobuf"],
