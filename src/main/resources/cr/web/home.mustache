@@ -59,11 +59,11 @@
     {{/hasAirConditioners}}
     <div class="panel" id="modbus-devices">
       <h2>Observed Modbus devices</h2>
-      <p class="notice">Valid requests observed since the service started. Unit 0 is a broadcast.</p>
+      <p class="notice">Valid traffic observed since the service started. Unit 0 is a broadcast and does not receive responses.</p>
       {{#hasModbusDevices}}
       <table class="register-table">
-        <tr><th>Device ID</th><th>Message count</th></tr>
-        {{#modbusDevices}}<tr><td>{{unitId}}</td><td>{{messageCount}}</td></tr>{{/modbusDevices}}
+        <tr><th>Device ID</th><th>Requests</th><th>Responses</th></tr>
+        {{#modbusDevices}}<tr><td>{{unitId}}</td><td>{{requestCount}}</td><td>{{responseCount}}</td></tr>{{/modbusDevices}}
       </table>
       {{/hasModbusDevices}}
       {{^hasModbusDevices}}<p class="notice">No Modbus messages observed yet.</p>{{/hasModbusDevices}}

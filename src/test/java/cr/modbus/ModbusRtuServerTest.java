@@ -10,6 +10,17 @@ import java.util.Map;
 
 class ModbusRtuServerTest {
     @Test
+    void recognizesRequestAndVariableLengthResponseFrames() {
+        byte[] request = Crc16.appendModbusCrc(new byte[]{7, 3, 0, 1, 0, 2});
+        byte[] response = Crc16.appendModbusCrc(new byte[]{7, 3, 4, 0, 22, 0, 23});
+        byte[] incompleteResponse = java.util.Arrays.copyOf(response, response.length - 1);
+
+        assertTrue(ModbusRtuServer.completeFrame(request));
+        assertTrue(ModbusRtuServer.completeFrame(response));
+        assertFalse(ModbusRtuServer.completeFrame(incompleteResponse));
+    }
+
+    @Test
     void writesAndReadsHoldingRegister() {
         RegisterBank bank = new RegisterBank();
         bank.updateFromA3(TestFrames.sampleA3());

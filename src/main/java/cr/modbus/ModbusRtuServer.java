@@ -25,6 +25,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     private final Config config;
     private final Map<Integer, RegisterBank> registers;
     private final ModbusTraffic traffic;
+    private final Map<Integer, byte[]> pendingEchoResponses = new java.util.HashMap<>();
     private final AtomicBoolean running = new AtomicBoolean(true);
     private volatile SerialEndpoint activeSerial;
 
@@ -62,8 +63,15 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
 
     private void serve(SerialEndpoint serial) throws IOException {
         while (running.get()) {
-            byte[] request = readRequest(serial);
+            byte[] request = readFrame(serial);
             if (request == null) continue;
+            if (isResponse(request)) {
+                int unit = u(request[0]);
+                traffic.recordResponse(unit);
+                LOG.info(() -> TrafficLog.entry("modbus", "RX-RESPONSE-OBSERVED", request,
+                        TrafficLog.modbusResponse(request)));
+                continue;
+            }
             LOG.info(() -> TrafficLog.entry("modbus", "RX-REQUEST", request,
                     TrafficLog.modbusRequest(request)));
             if (!Crc16.validModbusFrame(request)) {
@@ -72,7 +80,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
                 continue;
             }
             int unit = u(request[0]);
-            traffic.record(unit);
+            traffic.recordRequest(unit);
             if (unit != 0 && !registers.containsKey(unit)) {
                 LOG.warning(() -> TrafficLog.entry("modbus", "RX-IGNORED", request,
                         "ignored valid Modbus RTU request for unconfigured unit " + unit));
@@ -80,6 +88,8 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
             }
             byte[] response = handle(request);
             if (unit != 0 && response != null) {
+                pendingEchoResponses.remove(unit);
+                traffic.recordResponse(unit);
                 LOG.info(() -> TrafficLog.entry("modbus", "TX-RESPONSE", response,
                         TrafficLog.modbusResponse(response)));
                 serial.write(response);
@@ -87,30 +97,56 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
         }
     }
 
-    private byte[] readRequest(SerialEndpoint serial) throws IOException {
-        int unit = readByte(serial);
-        if (unit < 0) return null;
-        int function = readByte(serial);
-        if (function < 0) return null;
-
-        ByteArrayOutputStream request = new ByteArrayOutputStream(256);
-        request.write(unit);
-        request.write(function);
-        int remainder;
-        if (function == WRITE_MULTIPLE) {
-            byte[] headerTail = readExact(serial, 5);
-            if (headerTail == null) return null;
-            request.writeBytes(headerTail);
-            int byteCount = u(headerTail[4]);
-            if (byteCount > RegisterBank.REGISTER_COUNT * 2) return null;
-            remainder = byteCount + 2;
-        } else {
-            remainder = 6;
+    private byte[] readFrame(SerialEndpoint serial) throws IOException {
+        ByteArrayOutputStream frame = new ByteArrayOutputStream(256);
+        while (running.get() && frame.size() < 256) {
+            int value = readByte(serial);
+            if (value < 0) return frame.size() == 0 ? null : frame.toByteArray();
+            frame.write(value);
+            byte[] bytes = frame.toByteArray();
+            if (completeFrame(bytes)) return bytes;
         }
-        byte[] tail = readExact(serial, remainder);
-        if (tail == null) return null;
-        request.writeBytes(tail);
-        return request.toByteArray();
+        return frame.toByteArray();
+    }
+
+    static boolean completeFrame(byte[] frame) {
+        if (frame.length < 5 || !Crc16.validModbusFrame(frame)) return false;
+        int rawFunction = u(frame[1]);
+        if ((rawFunction & 0x80) != 0) return frame.length == 5;
+        int function = rawFunction & 0x7f;
+        return switch (function) {
+            case READ_HOLDING, READ_INPUT -> frame.length == 8
+                    || (u(frame[2]) > 0 && (u(frame[2]) & 1) == 0
+                    && frame.length == 5 + u(frame[2]));
+            case WRITE_SINGLE -> frame.length == 8;
+            case WRITE_MULTIPLE -> frame.length == 8
+                    || (frame.length >= 9 && u(frame[6]) <= 246
+                    && frame.length == 9 + u(frame[6]));
+            default -> frame.length == 8;
+        };
+    }
+
+    private boolean isResponse(byte[] frame) {
+        if (!Crc16.validModbusFrame(frame)) return false;
+        int unit = u(frame[0]);
+        int rawFunction = u(frame[1]);
+        if ((rawFunction & 0x80) != 0) {
+            pendingEchoResponses.remove(unit);
+            return true;
+        }
+        return switch (rawFunction) {
+            case READ_HOLDING, READ_INPUT -> frame.length != 8;
+            case WRITE_MULTIPLE -> frame.length == 8;
+            case WRITE_SINGLE -> isEchoResponse(unit, frame);
+            default -> false;
+        };
+    }
+
+    private boolean isEchoResponse(int unit, byte[] frame) {
+        byte[] request = pendingEchoResponses.remove(unit);
+        if (request != null && Arrays.equals(request, frame)) return true;
+        pendingEchoResponses.put(unit, Arrays.copyOf(frame, frame.length));
+        return false;
     }
 
     byte[] handle(byte[] request) {
@@ -193,21 +229,6 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
                     TrafficLog.rawMeaning("Modbus RTU")));
         }
         return count == 1 ? u(value[0]) : -1;
-    }
-
-    private byte[] readExact(SerialEndpoint serial, int length) throws IOException {
-        byte[] bytes = new byte[length];
-        int position = 0;
-        while (position < length && running.get()) {
-            int count = serial.read(bytes, position, length - position);
-            if (count < 0) throw new IOException("serial port closed");
-            if (count == 0) return null;
-            byte[] chunk = Arrays.copyOfRange(bytes, position, position + count);
-            LOG.info(() -> TrafficLog.entry("modbus", "RX", chunk,
-                    TrafficLog.rawMeaning("Modbus RTU")));
-            position += count;
-        }
-        return position == length ? bytes : null;
     }
 
     private static int word(byte[] data, int offset) {

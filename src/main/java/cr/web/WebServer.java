@@ -291,7 +291,8 @@ public final class WebServer implements AutoCloseable {
         List<Map<String, Object>> devices = modbusTraffic.snapshot().stream()
                 .map(device -> Map.<String, Object>of(
                         "unitId", device.unitId(),
-                        "messageCount", device.messageCount()))
+                        "requestCount", device.requestCount(),
+                        "responseCount", device.responseCount()))
                 .toList();
         context.put("modbusDevices", devices);
         context.put("hasModbusDevices", !devices.isEmpty());

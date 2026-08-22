@@ -8,14 +8,15 @@ class ModbusTrafficTest {
     @Test
     void countsMessagesByUnitAndSortsSnapshot() {
         ModbusTraffic traffic = new ModbusTraffic();
-        traffic.record(11);
-        traffic.record(3);
-        traffic.record(11);
+        traffic.recordRequest(11);
+        traffic.recordRequest(3);
+        traffic.recordResponse(11);
+        traffic.recordRequest(11);
 
         assertEquals(
                 java.util.List.of(
-                        new ModbusTraffic.DeviceCount(3, 1),
-                        new ModbusTraffic.DeviceCount(11, 2)),
+                        new ModbusTraffic.DeviceCount(3, 1, 0),
+                        new ModbusTraffic.DeviceCount(11, 2, 1)),
                 traffic.snapshot());
     }
 }
