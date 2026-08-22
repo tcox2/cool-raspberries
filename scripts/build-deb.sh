@@ -42,6 +42,8 @@ install -d "$package_root/usr/share/doc/cool-raspberries"
 
 install -m 0644 "$jar" \
   "$package_root/opt/cool-raspberries/cool-raspberries.jar"
+printf '%s\n' "$version" > "$package_root/opt/cool-raspberries/version"
+chmod 0644 "$package_root/opt/cool-raspberries/version"
 install -m 0644 "$project_dir/deploy/cool-raspberries.service" \
   "$package_root/lib/systemd/system/cool-raspberries.service"
 install -m 0644 "$project_dir/deploy/10-cool-raspberries-watchdog.conf" \

@@ -32,6 +32,13 @@
 <body>
   <div id="page">
     <h1>Cool Raspberries</h1>
+    <div class="panel" id="gateway-status">
+      <h2>Gateway status</h2>
+      <table class="status-table">
+        <tr><th scope="row">Version</th><td class="status-value">{{appVersion}}</td></tr>
+        <tr><th scope="row">Uptime</th><td class="status-value">{{appUptime}}</td></tr>
+      </table>
+    </div>
     {{#hasAirConditioners}}
     <form method="get" action="/" class="selector">
       <label for="ac-selector">Air conditioner</label>

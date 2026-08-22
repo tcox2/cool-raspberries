@@ -81,6 +81,9 @@ class WebServerTest {
                     request(home).GET().build(), HttpResponse.BodyHandlers.ofString());
             assertEquals(200, page.statusCode());
             assertTrue(page.body().contains("Bedroom status"));
+            assertTrue(page.body().contains("Gateway status"));
+            assertTrue(page.body().contains("Version"));
+            assertTrue(page.body().contains("Uptime"));
             assertTrue(page.body().contains("Modbus unit"));
             assertTrue(page.body().contains("Modbus register guide"));
             assertTrue(page.body().contains("0 / 40001"));
@@ -151,6 +154,7 @@ class WebServerTest {
 
             assertEquals(200, page.statusCode());
             assertTrue(page.body().contains("No air conditioners configured"));
+            assertTrue(page.body().contains("Gateway status"));
             assertTrue(page.body().contains("Modbus register guide"));
             assertFalse(page.body().contains("action=\"/control\""));
             assertEquals(200, health.statusCode());

@@ -3,6 +3,7 @@ package cr.web;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import cr.Config;
+import cr.AppInfo;
 import cr.core.RegisterBank;
 import cr.modbus.ModbusTraffic;
 import io.javalin.Javalin;
@@ -283,6 +284,7 @@ public final class WebServer implements AutoCloseable {
                 input[RegisterBank.STATUS_TEMPERATURE_TENTHS_C] / 10.0));
         context.put("powerStatus", input[RegisterBank.STATUS_POWER] == 1 ? "On" : "Off");
         context.put("sleepTimerStatus", input[RegisterBank.STATUS_SLEEP_TIMER_MINUTES]);
+        addGatewayStatus(context);
         addModbusTraffic(context);
         return homeTemplate.execute(context);
     }
@@ -290,8 +292,14 @@ public final class WebServer implements AutoCloseable {
     private String emptyHomeHtml() {
         Map<String, Object> context = new HashMap<>();
         context.put("hasAirConditioners", false);
+        addGatewayStatus(context);
         addModbusTraffic(context);
         return homeTemplate.execute(context);
+    }
+
+    private static void addGatewayStatus(Map<String, Object> context) {
+        context.put("appVersion", AppInfo.version());
+        context.put("appUptime", AppInfo.uptime());
     }
 
     private void addModbusTraffic(Map<String, Object> context) {
