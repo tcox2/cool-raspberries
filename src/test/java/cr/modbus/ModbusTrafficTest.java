@@ -12,11 +12,14 @@ class ModbusTrafficTest {
         traffic.recordRequest(3);
         traffic.recordResponse(11);
         traffic.recordRequest(11);
+        traffic.recordCrcError();
+        traffic.recordCrcError();
 
         assertEquals(
                 java.util.List.of(
                         new ModbusTraffic.DeviceCount(3, 1, 0),
                         new ModbusTraffic.DeviceCount(11, 2, 1)),
                 traffic.snapshot());
+        assertEquals(2, traffic.crcErrorCount());
     }
 }

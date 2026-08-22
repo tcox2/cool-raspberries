@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.LongAdder;
 /** In-memory observation counters for valid Modbus RTU traffic seen on the bus. */
 public final class ModbusTraffic {
     private final ConcurrentMap<Integer, Counters> messagesByUnit = new ConcurrentHashMap<>();
+    private final LongAdder crcErrors = new LongAdder();
 
     public void recordRequest(int unitId) {
         messagesByUnit.computeIfAbsent(unitId, ignored -> new Counters()).requests.increment();
@@ -16,6 +17,14 @@ public final class ModbusTraffic {
 
     public void recordResponse(int unitId) {
         messagesByUnit.computeIfAbsent(unitId, ignored -> new Counters()).responses.increment();
+    }
+
+    public void recordCrcError() {
+        crcErrors.increment();
+    }
+
+    public long crcErrorCount() {
+        return crcErrors.sum();
     }
 
     public List<DeviceCount> snapshot() {

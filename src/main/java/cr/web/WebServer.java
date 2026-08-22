@@ -296,6 +296,7 @@ public final class WebServer implements AutoCloseable {
                 .toList();
         context.put("modbusDevices", devices);
         context.put("hasModbusDevices", !devices.isEmpty());
+        context.put("modbusCrcErrors", modbusTraffic.crcErrorCount());
     }
 
     private List<Map<String, Object>> airConditionerOptions(String selectedId) {

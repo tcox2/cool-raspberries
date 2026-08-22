@@ -60,6 +60,9 @@
     <div class="panel" id="modbus-devices">
       <h2>Observed Modbus devices</h2>
       <p class="notice">Valid traffic observed since the service started. Unit 0 is a broadcast and does not receive responses.</p>
+      <table class="status-table">
+        <tr><th scope="row">CRC errors</th><td class="status-value">{{modbusCrcErrors}}</td></tr>
+      </table>
       {{#hasModbusDevices}}
       <table class="register-table">
         <tr><th>Device ID</th><th>Requests</th><th>Responses</th></tr>

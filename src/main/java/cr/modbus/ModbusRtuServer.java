@@ -75,6 +75,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
             LOG.info(() -> TrafficLog.entry("modbus", "RX-REQUEST", request,
                     TrafficLog.modbusRequest(request)));
             if (!Crc16.validModbusFrame(request)) {
+                traffic.recordCrcError();
                 LOG.warning(() -> TrafficLog.entry("modbus", "RX-REJECTED", request,
                         "rejected Modbus RTU request: invalid CRC"));
                 continue;

@@ -58,6 +58,7 @@ class WebServerTest {
         traffic.recordRequest(7);
         traffic.recordRequest(7);
         traffic.recordResponse(7);
+        traffic.recordCrcError();
         try (WebServer server = new WebServer(config(port), Map.of("living", living, "bedroom", bedroom), traffic);
              HttpClient client = testClient()) {
             server.start();
@@ -89,6 +90,8 @@ class WebServerTest {
             assertTrue(page.body().contains("Observed Modbus devices"));
             assertTrue(page.body().contains("<td>7</td><td>2</td><td>1</td>"));
             assertTrue(page.body().contains("<td>11</td><td>1</td><td>1</td>"));
+            assertTrue(page.body().contains("CRC errors"));
+            assertTrue(page.body().contains("class=\"status-value\">1</td>"));
             assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",
