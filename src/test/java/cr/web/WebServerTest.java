@@ -97,6 +97,7 @@ class WebServerTest {
             assertTrue(page.body().contains("AC CRC errors"));
             assertTrue(page.body().contains("Valid AC state frames"));
             assertTrue(page.body().contains("Last valid AC frame"));
+            assertFalse(page.body().contains("65535 seconds ago"));
             assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",

@@ -275,7 +275,8 @@ public final class WebServer implements AutoCloseable {
         context.put("acResponses", diagnostics.responses());
         context.put("acCrcErrors", diagnostics.crcErrors());
         context.put("acValidStateFrames", diagnostics.validStateFrames());
-        context.put("acLastValidFrameAge", diagnostics.lastValidFrameAgeSeconds());
+        context.put("acLastValidFrame", bank.lastValidFrame() == null ? "Never"
+                : diagnostics.lastValidFrameAgeSeconds() + " seconds ago");
         context.put("connectionClass", online ? "online" : "offline");
         context.put("connection", connection);
         context.put("temperature", String.format(Locale.ROOT, "%.1f °C",

@@ -50,7 +50,7 @@
         <tr><th scope="row">AC responses received</th><td class="status-value">{{acResponses}}</td></tr>
         <tr><th scope="row">AC CRC errors</th><td class="status-value">{{acCrcErrors}}</td></tr>
         <tr><th scope="row">Valid AC state frames</th><td class="status-value">{{acValidStateFrames}}</td></tr>
-        <tr><th scope="row">Last valid AC frame</th><td class="status-value">{{acLastValidFrameAge}} seconds ago</td></tr>
+        <tr><th scope="row">Last valid AC frame</th><td class="status-value">{{acLastValidFrame}}</td></tr>
       </table>
       <form method="get" action="/" class="refresh"><input type="hidden" name="ac" value="{{acId}}"><button type="submit">Refresh status</button></form>
     </div>
