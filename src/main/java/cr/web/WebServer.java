@@ -270,6 +270,11 @@ public final class WebServer implements AutoCloseable {
         context.put("acId", ac.id());
         context.put("acName", ac.name());
         context.put("modbusUnitId", ac.modbusUnitId());
+        ModbusTraffic.DeviceCount traffic = modbusTraffic.device(ac.modbusUnitId())
+                .orElse(new ModbusTraffic.DeviceCount(ac.modbusUnitId(), 0, 0));
+        context.put("acModbusRequests", traffic.requestCount());
+        context.put("acModbusResponses", traffic.responseCount());
+        context.put("modbusCrcErrors", modbusTraffic.crcErrorCount());
         context.put("connectionClass", online ? "online" : "offline");
         context.put("connection", connection);
         context.put("temperature", String.format(Locale.ROOT, "%.1f °C",

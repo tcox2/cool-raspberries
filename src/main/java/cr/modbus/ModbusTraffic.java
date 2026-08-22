@@ -2,6 +2,7 @@ package cr.modbus;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.LongAdder;
@@ -33,6 +34,12 @@ public final class ModbusTraffic {
                         entry.getValue().requests.sum(), entry.getValue().responses.sum()))
                 .sorted(Comparator.comparingInt(DeviceCount::unitId))
                 .toList();
+    }
+
+    public Optional<DeviceCount> device(int unitId) {
+        Counters counters = messagesByUnit.get(unitId);
+        return counters == null ? Optional.empty() : Optional.of(
+                new DeviceCount(unitId, counters.requests.sum(), counters.responses.sum()));
     }
 
     private static final class Counters {

@@ -46,6 +46,9 @@
         <tr><th scope="row">Power</th><td class="status-value">{{powerStatus}}</td></tr>
         <tr><th scope="row">Temperature</th><td class="status-value">{{temperature}}</td></tr>
         <tr><th scope="row">Sleep timer</th><td class="status-value">{{sleepTimerStatus}} minutes</td></tr>
+        <tr><th scope="row">Modbus requests</th><td class="status-value">{{acModbusRequests}}</td></tr>
+        <tr><th scope="row">Modbus responses</th><td class="status-value">{{acModbusResponses}}</td></tr>
+        <tr><th scope="row">Bus CRC errors</th><td class="status-value">{{modbusCrcErrors}}</td></tr>
       </table>
       <form method="get" action="/" class="refresh"><input type="hidden" name="ac" value="{{acId}}"><button type="submit">Refresh status</button></form>
     </div>

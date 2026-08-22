@@ -92,6 +92,9 @@ class WebServerTest {
             assertTrue(page.body().contains("<td>11</td><td>1</td><td>1</td>"));
             assertTrue(page.body().contains("CRC errors"));
             assertTrue(page.body().contains("class=\"status-value\">1</td>"));
+            assertTrue(page.body().contains("Modbus requests"));
+            assertTrue(page.body().contains("Modbus responses"));
+            assertTrue(page.body().contains("Bus CRC errors"));
             assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",
