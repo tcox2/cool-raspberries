@@ -69,6 +69,7 @@ public final class AcWorker implements Runnable, AutoCloseable {
                 LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "TX", heartbeat,
                         TrafficLog.acFrame(heartbeat)));
                 serial.write(heartbeat);
+                registers.recordAcRequest();
                 nextHeartbeat = now.plus(HEARTBEAT_INTERVAL);
             }
             if (lastA3 != null && registers.consumeControlsDirty()) {
@@ -76,6 +77,7 @@ public final class AcWorker implements Runnable, AutoCloseable {
                 LOG.info(() -> TrafficLog.entry("ac/" + config.id(), "TX", frame,
                         TrafficLog.acFrame(frame)));
                 serial.write(frame);
+                registers.recordAcRequest();
             }
         }
     }
@@ -89,6 +91,7 @@ public final class AcWorker implements Runnable, AutoCloseable {
                     "rejected proprietary AC frame: invalid envelope or CRC"));
             return;
         }
+        registers.recordAcResponse();
         switch (AcProtocol.frameType(frame)) {
             case AcProtocol.TYPE_A3 -> {
                 if (frame.length != 34) {

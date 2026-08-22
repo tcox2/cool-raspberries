@@ -42,6 +42,8 @@ public final class RegisterBank {
     private Instant lastValidFrame;
     private long validFrames;
     private long crcErrors;
+    private long acRequests;
+    private long acResponses;
     private final Duration staleAfter;
 
     public RegisterBank() {
@@ -148,6 +150,37 @@ public final class RegisterBank {
             lock.writeLock().unlock();
         }
     }
+
+    public void recordAcRequest() {
+        lock.writeLock().lock();
+        try {
+            acRequests++;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public void recordAcResponse() {
+        lock.writeLock().lock();
+        try {
+            acResponses++;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public AcDiagnostics acDiagnostics() {
+        lock.readLock().lock();
+        try {
+            return new AcDiagnostics(acRequests, acResponses, crcErrors, validFrames,
+                    lastValidFrameAgeSeconds());
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public record AcDiagnostics(long requests, long responses, long crcErrors,
+                                long validStateFrames, int lastValidFrameAgeSeconds) {}
 
     public Instant lastValidFrame() {
         lock.readLock().lock();

@@ -42,4 +42,21 @@ class RegisterBankTest {
         assertTrue(bank.consumeControlsDirty());
         assertFalse(bank.consumeControlsDirty());
     }
+
+    @Test
+    void reportsAirConditionerProtocolDiagnostics() {
+        RegisterBank bank = new RegisterBank();
+        bank.recordAcRequest();
+        bank.recordAcRequest();
+        bank.recordAcResponse();
+        bank.recordCrcError();
+        bank.updateFromA3(TestFrames.sampleA3());
+
+        RegisterBank.AcDiagnostics diagnostics = bank.acDiagnostics();
+        assertEquals(2, diagnostics.requests());
+        assertEquals(1, diagnostics.responses());
+        assertEquals(1, diagnostics.crcErrors());
+        assertEquals(1, diagnostics.validStateFrames());
+        assertEquals(0, diagnostics.lastValidFrameAgeSeconds());
+    }
 }

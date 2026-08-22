@@ -92,9 +92,11 @@ class WebServerTest {
             assertTrue(page.body().contains("<td>11</td><td>1</td><td>1</td>"));
             assertTrue(page.body().contains("CRC errors"));
             assertTrue(page.body().contains("class=\"status-value\">1</td>"));
-            assertTrue(page.body().contains("Modbus requests"));
-            assertTrue(page.body().contains("Modbus responses"));
-            assertTrue(page.body().contains("Bus CRC errors"));
+            assertTrue(page.body().contains("AC requests sent"));
+            assertTrue(page.body().contains("AC responses received"));
+            assertTrue(page.body().contains("AC CRC errors"));
+            assertTrue(page.body().contains("Valid AC state frames"));
+            assertTrue(page.body().contains("Last valid AC frame"));
             assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",
