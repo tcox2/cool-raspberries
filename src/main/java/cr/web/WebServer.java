@@ -297,9 +297,10 @@ public final class WebServer implements AutoCloseable {
         return homeTemplate.execute(context);
     }
 
-    private static void addGatewayStatus(Map<String, Object> context) {
+    private void addGatewayStatus(Map<String, Object> context) {
         context.put("appVersion", AppInfo.version());
         context.put("appUptime", AppInfo.uptime());
+        context.put("appLogPath", config.logPath().toString());
     }
 
     private void addModbusTraffic(Map<String, Object> context) {

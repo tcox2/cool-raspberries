@@ -84,6 +84,8 @@ class WebServerTest {
             assertTrue(page.body().contains("Gateway status"));
             assertTrue(page.body().contains("Version"));
             assertTrue(page.body().contains("Uptime"));
+            assertTrue(page.body().contains("Log file"));
+            assertTrue(page.body().contains("/tmp/cool-raspberries-web-test.log"));
             assertTrue(page.body().contains("Modbus unit"));
             assertTrue(page.body().contains("Modbus register guide"));
             assertTrue(page.body().contains("0 / 40001"));
