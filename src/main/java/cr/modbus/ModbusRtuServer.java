@@ -24,12 +24,18 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
     private static final int WRITE_MULTIPLE = 16;
     private final Config config;
     private final Map<Integer, RegisterBank> registers;
+    private final ModbusTraffic traffic;
     private final AtomicBoolean running = new AtomicBoolean(true);
     private volatile SerialEndpoint activeSerial;
 
     public ModbusRtuServer(Config config, Map<Integer, RegisterBank> registers) {
+        this(config, registers, new ModbusTraffic());
+    }
+
+    public ModbusRtuServer(Config config, Map<Integer, RegisterBank> registers, ModbusTraffic traffic) {
         this.config = config;
         this.registers = Map.copyOf(registers);
+        this.traffic = traffic;
     }
 
     @Override
@@ -66,6 +72,7 @@ public final class ModbusRtuServer implements Runnable, AutoCloseable {
                 continue;
             }
             int unit = u(request[0]);
+            traffic.record(unit);
             if (unit != 0 && !registers.containsKey(unit)) {
                 LOG.warning(() -> TrafficLog.entry("modbus", "RX-IGNORED", request,
                         "ignored valid Modbus RTU request for unconfigured unit " + unit));

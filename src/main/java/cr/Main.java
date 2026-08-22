@@ -3,6 +3,7 @@ package cr;
 import cr.ac.AcWorker;
 import cr.core.RegisterBank;
 import cr.modbus.ModbusRtuServer;
+import cr.modbus.ModbusTraffic;
 import cr.web.WebServer;
 
 
@@ -45,8 +46,9 @@ public final class Main {
             registersByUnit.put(ac.modbusUnitId(), registers);
             acWorkers.add(new AcWorker(ac, registers));
         }
-        ModbusRtuServer modbusServer = new ModbusRtuServer(config, registersByUnit);
-        WebServer webServer = new WebServer(config, registersById);
+        ModbusTraffic modbusTraffic = new ModbusTraffic();
+        ModbusRtuServer modbusServer = new ModbusRtuServer(config, registersByUnit, modbusTraffic);
+        WebServer webServer = new WebServer(config, registersById, modbusTraffic);
         AtomicInteger threadNumber = new AtomicInteger();
         ExecutorService workers = Executors.newFixedThreadPool(acWorkers.size() + 1, runnable -> {
             Thread thread = new Thread(runnable, "serial-worker-" + threadNumber.incrementAndGet());

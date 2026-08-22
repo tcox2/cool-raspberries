@@ -4,6 +4,7 @@ import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
 import cr.Config;
 import cr.core.RegisterBank;
+import cr.modbus.ModbusTraffic;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
@@ -48,12 +49,19 @@ public final class WebServer implements AutoCloseable {
     private static final String AUDIT_LOGGED = "audit.logged";
     private final Config config;
     private final Map<String, RegisterBank> registers;
+    private final ModbusTraffic modbusTraffic;
     private final Javalin app;
     private final Template homeTemplate;
 
     public WebServer(Config config, Map<String, RegisterBank> registers) throws IOException {
+        this(config, registers, new ModbusTraffic());
+    }
+
+    public WebServer(Config config, Map<String, RegisterBank> registers, ModbusTraffic modbusTraffic)
+            throws IOException {
         this.config = config;
         this.registers = Map.copyOf(registers);
+        this.modbusTraffic = modbusTraffic;
         this.homeTemplate = loadTemplate("/cr/web/home.mustache");
 
         Config.Web web = config.web();
@@ -268,13 +276,25 @@ public final class WebServer implements AutoCloseable {
                 input[RegisterBank.STATUS_TEMPERATURE_TENTHS_C] / 10.0));
         context.put("powerStatus", input[RegisterBank.STATUS_POWER] == 1 ? "On" : "Off");
         context.put("sleepTimerStatus", input[RegisterBank.STATUS_SLEEP_TIMER_MINUTES]);
+        addModbusTraffic(context);
         return homeTemplate.execute(context);
     }
 
     private String emptyHomeHtml() {
         Map<String, Object> context = new HashMap<>();
         context.put("hasAirConditioners", false);
+        addModbusTraffic(context);
         return homeTemplate.execute(context);
+    }
+
+    private void addModbusTraffic(Map<String, Object> context) {
+        List<Map<String, Object>> devices = modbusTraffic.snapshot().stream()
+                .map(device -> Map.<String, Object>of(
+                        "unitId", device.unitId(),
+                        "messageCount", device.messageCount()))
+                .toList();
+        context.put("modbusDevices", devices);
+        context.put("hasModbusDevices", !devices.isEmpty());
     }
 
     private List<Map<String, Object>> airConditionerOptions(String selectedId) {

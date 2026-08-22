@@ -57,6 +57,17 @@
       <p class="notice">The HTTPS gateway and Modbus RTU bus are ready. Add an air conditioner to the gateway configuration when one is available.</p>
     </div>
     {{/hasAirConditioners}}
+    <div class="panel" id="modbus-devices">
+      <h2>Observed Modbus devices</h2>
+      <p class="notice">Valid requests observed since the service started. Unit 0 is a broadcast.</p>
+      {{#hasModbusDevices}}
+      <table class="register-table">
+        <tr><th>Device ID</th><th>Message count</th></tr>
+        {{#modbusDevices}}<tr><td>{{unitId}}</td><td>{{messageCount}}</td></tr>{{/modbusDevices}}
+      </table>
+      {{/hasModbusDevices}}
+      {{^hasModbusDevices}}<p class="notice">No Modbus messages observed yet.</p>{{/hasModbusDevices}}
+    </div>
     <div class="panel" id="modbus-guide">
       <h2>Modbus register guide</h2>
       <p class="notice">Addresses are zero-based. Some Modbus tools show holding register 0 as 40001 and input register 0 as 30001. Use the Modbus unit shown above for the selected air conditioner.</p>

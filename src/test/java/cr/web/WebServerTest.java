@@ -3,6 +3,7 @@ package cr.web;
 import cr.Config;
 import cr.TestFrames;
 import cr.core.RegisterBank;
+import cr.modbus.ModbusTraffic;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -51,7 +52,11 @@ class WebServerTest {
         };
         logger.addHandler(auditCapture);
 
-        try (WebServer server = new WebServer(config(port), Map.of("living", living, "bedroom", bedroom));
+        ModbusTraffic traffic = new ModbusTraffic();
+        traffic.record(11);
+        traffic.record(7);
+        traffic.record(7);
+        try (WebServer server = new WebServer(config(port), Map.of("living", living, "bedroom", bedroom), traffic);
              HttpClient client = testClient()) {
             server.start();
             URI home = URI.create("https://127.0.0.1:" + port + "/?ac=bedroom");
@@ -79,6 +84,9 @@ class WebServerTest {
             assertTrue(page.body().contains("1 / 30002"));
             assertTrue(page.body().contains("value=\"bedroom\" selected"));
             assertTrue(page.body().contains("HTTPS is observation only"));
+            assertTrue(page.body().contains("Observed Modbus devices"));
+            assertTrue(page.body().contains("<td>7</td><td>2</td>"));
+            assertTrue(page.body().contains("<td>11</td><td>1</td>"));
             assertFalse(page.body().contains("<form method=\"post\""));
             assertFalse(page.body().contains("<script"));
             assertEquals("max-age=31536000",
